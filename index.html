@@ -207,6 +207,10 @@
                         <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
+                <div id="customRaceInputContainer" class="hidden">
+                    <label for="customRace" class="block text-sm font-medium mb-1 text-dark-text">自訂種族名稱:</label>
+                    <input type="text" id="customRace" class="w-full p-3 rounded-lg" placeholder="輸入自訂種族名稱">
+                </div>
                 <div id="subraceContainer" class="hidden">
                     <label for="charSubrace" class="block text-sm font-medium mb-1 text-dark-text">亞種:</label>
                     <select id="charSubrace" class="w-full p-3 rounded-lg">
@@ -222,11 +226,19 @@
                         <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
+                <div id="customClassInputContainer" class="hidden">
+                    <label for="customClass" class="block text-sm font-medium mb-1 text-dark-text">自訂職業名稱:</label>
+                    <input type="text" id="customClass" class="w-full p-3 rounded-lg" placeholder="輸入自訂職業名稱">
+                </div>
                 <div>
                     <label for="charBackground" class="block text-sm font-medium mb-1 text-dark-text">背景:</label>
                     <select id="charBackground" class="w-full p-3 rounded-lg">
                         <!-- Options will be populated by JavaScript -->
                     </select>
+                </div>
+                <div id="customBackgroundInputContainer" class="hidden">
+                    <label for="customBackground" class="block text-sm font-medium mb-1 text-dark-text">自訂背景名稱:</label>
+                    <input type="text" id="customBackground" class="w-full p-3 rounded-lg" placeholder="輸入自訂背景名稱">
                 </div>
             </div>
 
@@ -237,14 +249,36 @@
                     </select>
             </div>
 
-            <h3 class="text-xl font-semibold mb-2 mt-4 text-purple-300">屬性值 (標準配點: 15, 14, 13, 12, 10, 8):</h3>
+            <h3 class="text-xl font-semibold mb-2 mt-4 text-purple-300">屬性值:</h3>
+            <div class="mb-4">
+                <label class="inline-flex items-center text-dark-text mr-4">
+                    <input type="radio" name="attributeMethod" value="standard" class="form-radio h-4 w-4 text-a0522d" checked>
+                    <span class="ml-2">標準配點 (15, 14, 13, 12, 10, 8)</span>
+                </label>
+                <label class="inline-flex items-center text-dark-text">
+                    <input type="radio" name="attributeMethod" value="roll" class="form-radio h-4 w-4 text-a0522d">
+                    <span class="ml-2">骰點生成 (4d6dl1)</span>
+                </label>
+            </div>
+
+            <div id="attributeMethodInfo" class="mb-4 text-dark-text-secondary">
+                <p id="attributeMethodDescription"></p>
+                <p id="attributeMethodValues" class="font-bold text-dark-text"></p>
+            </div>
+
+            <div id="rollDiceAttributeSection" class="hidden mb-4">
+                <button id="rollAttributeDiceBtn" class="w-full btn-primary py-3 px-6 rounded-lg mb-4">
+                    投擲屬性骰 (4d6dl1)
+                </button>
+            </div>
+
             <div class="grid grid-cols-2 gap-4 mb-4">
-                <div><label for="assignStr" class="block text-sm font-medium mb-1 text-dark-text">力量 (STR):</label><select id="assignStr" class="w-full p-3 rounded-lg"></select></div>
-                <div><label for="assignDex" class="block text-sm font-medium mb-1 text-dark-text">敏捷 (DEX):</label><select id="assignDex" class="w-full p-3 rounded-lg"></select></div>
-                <div><label for="assignCon" class="block text-sm font-medium mb-1 text-dark-text">體質 (CON):</label><select id="assignCon" class="w-full p-3 rounded-lg"></select></div>
-                <div><label for="assignInt" class="block text-sm font-medium mb-1 text-dark-text">智力 (INT):</label><select id="assignInt" class="w-full p-3 rounded-lg"></select></div>
-                <div><label for="assignWis" class="block text-sm font-medium mb-1 text-dark-text">感知 (WIS):</label><select id="assignWis" class="w-full p-3 rounded-lg"></select></div>
-                <div><label for="assignCha" class="block text-sm font-medium mb-1 text-dark-text">魅力 (CHA):</label><select id="assignCha" class="w-full p-3 rounded-lg"></select></div>
+                <div><label for="assignStr" class="block text-sm font-medium mb-1 text-dark-text">力量 (STR):</label><input type="number" id="assignStr" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignDex" class="block text-sm font-medium mb-1 text-dark-text">敏捷 (DEX):</label><input type="number" id="assignDex" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignCon" class="block text-sm font-medium mb-1 text-dark-text">體質 (CON):</label><input type="number" id="assignCon" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignInt" class="block text-sm font-medium mb-1 text-dark-text">智力 (INT):</label><input type="number" id="assignInt" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignWis" class="block text-sm font-medium mb-1 text-dark-text">感知 (WIS):</label><input type="number" id="assignWis" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignCha" class="block text-sm font-medium mb-1 text-dark-text">魅力 (CHA):</label><input type="number" id="assignCha" class="w-full p-3 rounded-lg" min="3" max="18"></div>
             </div>
 
             <div id="halfElfBonusContainer" class="hidden bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-4 text-dark-text-secondary">
@@ -292,26 +326,39 @@
             const charNameInput = document.getElementById('charName');
             const playerNameInput = document.getElementById('playerName');
             const charRaceSelect = document.getElementById('charRace');
+            const customRaceInputContainer = document.getElementById('customRaceInputContainer');
+            const customRaceInput = document.getElementById('customRace');
             const charSubraceSelect = document.getElementById('charSubrace');
             const subraceContainer = document.getElementById('subraceContainer');
             const charClassSelect = document.getElementById('charClass');
+            const customClassInputContainer = document.getElementById('customClassInputContainer');
+            const customClassInput = document.getElementById('customClass');
             const charBackgroundSelect = document.getElementById('charBackground');
+            const customBackgroundInputContainer = document.getElementById('customBackgroundInputContainer');
+            const customBackgroundInput = document.getElementById('customBackground');
             const charAlignmentSelect = document.getElementById('charAlignment');
 
             // Attribute Assignment Elements
-            const assignStrSelect = document.getElementById('assignStr');
-            const assignDexSelect = document.getElementById('assignDex');
-            const assignConSelect = document.getElementById('assignCon');
-            const assignIntSelect = document.getElementById('assignInt');
-            const assignWisSelect = document.getElementById('assignWis');
-            const assignChaSelect = document.getElementById('assignCha');
-            const attributeSelects = {
-                str: assignStrSelect,
-                dex: assignDexSelect,
-                con: assignConSelect,
-                int: assignIntSelect,
-                wis: assignWisSelect,
-                cha: assignChaSelect
+            const attributeMethodRadios = document.querySelectorAll('input[name="attributeMethod"]');
+            const attributeMethodInfo = document.getElementById('attributeMethodInfo');
+            const attributeMethodDescription = document.getElementById('attributeMethodDescription');
+            const attributeMethodValuesDisplay = document.getElementById('attributeMethodValues');
+            const rollDiceAttributeSection = document.getElementById('rollDiceAttributeSection');
+            const rollAttributeDiceBtn = document.getElementById('rollAttributeDiceBtn');
+
+            const assignStrInput = document.getElementById('assignStr');
+            const assignDexInput = document.getElementById('assignDex');
+            const assignConInput = document.getElementById('assignCon');
+            const assignIntInput = document.getElementById('assignInt');
+            const assignWisInput = document.getElementById('assignWis');
+            const assignChaInput = document.getElementById('assignCha');
+            const attributeInputs = {
+                str: assignStrInput,
+                dex: assignDexInput,
+                con: assignConInput,
+                int: assignIntInput,
+                wis: assignWisInput,
+                cha: assignChaInput
             };
 
             const halfElfBonusContainer = document.getElementById('halfElfBonusContainer');
@@ -351,10 +398,24 @@
                 { name: "矮人", subraces: ["山地矮人", "丘陵矮人"] },
                 { name: "半身人", subraces: ["萊特足半身人", "堅心半身人"] },
                 { name: "地精", subraces: ["森林地精", "岩石地精"] },
-                { name: "龍裔", subraces: [] },
+                { 
+                    name: "龍裔", 
+                    subraces: [
+                        { name: "黑龍", damageType: "酸蝕", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { name: "藍龍", damageType: "閃電", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { name: "黃銅龍", damageType: "火焰", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { name: "青銅龍", damageType: "閃電", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { name: "赤銅龍", damageType: "酸蝕", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { name: "金龍", damageType: "火焰", breathWeapon: "15呎錐形 (敏捷豁免)" },
+                        { name: "綠龍", damageType: "毒素", breathWeapon: "15呎錐形 (體質豁免)" },
+                        { name: "紅龍", damageType: "火焰", breathWeapon: "15呎錐形 (敏捷豁免)" },
+                        { name: "銀龍", damageType: "寒冷", breathWeapon: "15呎錐形 (體質豁免)" },
+                        { name: "白龍", damageType: "寒冷", breathWeapon: "15呎錐形 (體質豁免)" }
+                    ]
+                },
                 { name: "提夫林", subraces: [] },
                 { name: "半獸人", subraces: [] },
-                { name: "半精靈", subraces: [] }, // Special handling for Half-Elf
+                { name: "半精靈", subraces: ["高地半精靈", "木地半精靈", "卓爾地半精靈"] },
                 { name: "侏儒", subraces: [] },
                 { name: "肯庫", subraces: [] },
                 { name: "蜥蜴人", subraces: [] },
@@ -363,14 +424,16 @@
                 { name: "鳥人", subraces: [] },
                 { name: "妖精", subraces: [] },
                 { name: "哥布林", subraces: [] },
-                { name: "狗頭人", subraces: [] }
+                { name: "狗頭人", subraces: [] },
+                { name: "自訂", subraces: [] } // Custom option for race
             ];
 
             const classes = [
                 "野蠻人", "吟遊詩人", "牧師", "德魯伊",
                 "戰士", "武僧", "聖武士", "遊俠",
                 "遊蕩者", "術士", "邪術師", "法師",
-                "血騎士", "奇械師"
+                "血騎士", "奇械師",
+                "自訂" // Custom option for class
             ];
 
             const alignments = [
@@ -384,14 +447,13 @@
                 "民間英雄", "行會工匠", "隱士",
                 "貴族", "野外生存者", "賢者",
                 "士兵", "街頭流浪兒", "學徒",
-                "偵探", "海員", "間諜"
+                "偵探", "海員", "間諜",
+                "自訂" // Custom option for background
             ];
 
             const standardArrayValues = [15, 14, 13, 12, 10, 8];
-            let availableAttributeValues = [...standardArrayValues]; // Copy for manipulation
-            let assignedAttributeValues = {
-                str: null, dex: null, con: null, int: null, wis: null, cha: null
-            };
+            let attributeGenerationMethod = 'standard'; // 'standard' or 'roll'
+            let rolledAttributeValues = []; // Stores the 6 values generated by 4d6dl1
 
             // Attributes for Half-Elf bonus (all except Charisma)
             const halfElfBonusAttributes = [
@@ -441,7 +503,8 @@
                 "學徒": ["arcana", "history"], // Example, adjust if specific
                 "偵探": ["investigation", "insight"], // Example, adjust if specific
                 "海員": ["athletics", "perception"], // Example, adjust if specific
-                "間諜": ["deception", "stealth"] // Example, adjust if specific
+                "間諜": ["deception", "stealth"], // Example, adjust if specific
+                "自訂": [] // Custom background grants no default proficiencies
             };
 
             // New map for class skill proficiencies
@@ -461,7 +524,8 @@
                 "邪術師": { count: 2, options: ["arcana", "deception", "history", "intimidation", "investigation", "nature", "religion"] },
                 "法師": { count: 2, options: ["arcana", "history", "insight", "investigation", "medicine", "religion"] },
                 "血騎士": { count: 2, options: ["athletics", "acrobatics", "insight", "intimidation", "investigation", "perception", "stealth", "survival"] },
-                "奇械師": { count: 2, options: ["arcana", "history", "investigation", "medicine", "sleightOfHand"] }
+                "奇械師": { count: 2, options: ["arcana", "history", "investigation", "medicine", "sleightOfHand"] },
+                "自訂": { count: 2, options: allSkills.map(s => s.key) } // Custom class can choose any 2 skills
             };
 
             const generalEasterEggMessages = [
@@ -550,41 +614,6 @@
                 "妖精-聖武士": "以純真之心捍衛誓言，妖精聖武士是光明與歡樂的使者！",
                 "哥布林-牧師": "即使是哥布林，也能找到信仰，並為他們的部落帶來微薄的神聖力量！",
                 "狗頭人-吟遊詩人": "用蹩腳的歌聲和滑稽的表演來取悅他們的龍主，狗頭人吟遊詩人充滿了喜劇色彩！",
-                // 新增更多種族職業彩蛋
-                "人類-法師": "經典的奧術之路，人類的適應力讓他們能駕馭任何魔法！",
-                "精靈-遊俠": "森林的守護者，精靈遊俠的箭術無人能及！",
-                "矮人-聖武士": "堅不可摧的信仰，矮人聖武士是正義的磐石！",
-                "半身人-術士": "小小的身軀蘊藏著強大的魔法天賦，別小看他們！",
-                "地精-牧師": "即使是地精，也能找到信仰，為他們的部落帶來微不足道的祝福！",
-                "龍裔-德魯伊": "龍的血脈與自然的連結，這將是狂野而強大的組合！",
-                "提夫林-戰士": "惡魔的血統賦予你力量，用你的劍為自己正名！",
-                "半獸人-吟遊詩人": "狂野的歌聲，半獸人吟遊詩人將用他們的獨特魅力征服聽眾！",
-                "侏儒-牧師": "侏儒的信仰堅定而純粹，他們是小小的神聖使者！",
-                "肯庫-遊蕩者": "天生的模仿者，肯庫遊蕩者能完美複製任何潛入技巧！",
-                "蜥蜴人-聖武士": "冷靜而致命的誓言，蜥蜴人聖武士的判斷力無人能敵！",
-                "獸人-術士": "獸人中的異類，他們的魔法天賦將震驚世界！",
-                "貓人-戰士": "優雅的戰鬥風格，貓人戰士在戰場上如舞蹈般靈動！",
-                "鳥人-吟遊詩人": "用歌聲翱翔天際，鳥人吟遊詩人將故事傳播到每個角落！",
-                "妖精-法師": "妖精的魔法天賦與法師的學識結合，創造出奇妙的咒語！",
-                "哥布林-奇械師": "哥布林也能發明創造？小心他們的小玩意兒會爆炸！",
-                "狗頭人-邪術師": "與黑暗實體的契約，狗頭人邪術師的魔法充滿了狡詐！",
-                "人類-德魯伊": "與自然親近的人類，他們的德魯伊之道充滿了適應性！",
-                "精靈-武僧": "精靈的優雅與武僧的紀律，完美的平衡！",
-                "矮人-術士": "矮人中的魔法異類，他們的術士力量源自古老的血脈！",
-                "半身人-聖武士": "小小的身軀，大大的正義，半身人聖武士是無畏的守護者！",
-                "地精-奇械師": "地精的發明總是充滿驚喜（或驚嚇），他們的奇械師之路充滿了混亂！",
-                "龍裔-遊蕩者": "龍裔的強大身軀與遊蕩者的敏捷結合，是可怕的刺客！",
-                "提夫林-遊俠": "在陰影中追蹤獵物，提夫林遊俠的復仇之路無人能擋！",
-                "半獸人-牧師": "即使是半獸人，也能找到神聖的指引，為部落帶來信仰的力量！",
-                "侏儒-吟遊詩人": "侏儒的幽默感與吟遊詩人的天賦，他們的故事總是充滿歡聲笑語！",
-                "肯庫-奇械師": "肯庫的模仿天賦讓他們能快速掌握奇械術，創造出獨特的裝置！",
-                "蜥蜴人-牧師": "冷靜而原始的信仰，蜥蜴人牧師是沼澤的守護者！",
-                "獸人-聖武士": "獸人中的榮譽戰士，他們的誓言比鋼鐵更堅硬！",
-                "貓人-術士": "貓人的神秘感與術士的魔法結合，他們的魅力無人能擋！",
-                "鳥人-聖武士": "天空的聖騎士，鳥人聖武士用聖光淨化邪惡！",
-                "妖精-奇械師": "妖精的奇思妙想與奇械術結合，創造出令人驚嘆的魔法裝置！",
-                "哥布林-邪術師": "哥布林與黑暗力量的交易，他們的邪術充滿了惡意！",
-                "狗頭人-牧師": "狗頭人對龍的崇拜，讓他們成為龍神的微小僕從！"
             };
 
             // Player Name Easter Eggs (now checks playerNameInput)
@@ -632,13 +661,13 @@
                 optionsArray.forEach(option => {
                     const opt = document.createElement('option');
                     let optionValue, optionText;
-                    if (typeof option === 'object' && option.name) {
+                    if (typeof option === 'object' && option.name) { // For race subraces with properties
                         optionValue = option.name;
                         optionText = option.name;
                     } else if (typeof option === 'object' && option.key && option.name) { // For halfElfBonusAttributes
                         optionValue = option.key;
                         optionText = option.name;
-                    } else {
+                    } else { // For simple string options
                         optionValue = option;
                         optionText = option;
                     }
@@ -653,7 +682,10 @@
                 // Set the selected value back if it's still a valid option or if a defaultValue was provided and found
                 if (valueFound) {
                     selectElement.value = defaultValue;
-                } else if (currentSelectedValue && optionsArray.some(opt => (typeof opt === 'object' ? opt.key : opt) === currentSelectedValue || (typeof opt === 'object' ? opt.name : opt) === currentSelectedValue || opt === currentSelectedValue)) {
+                } else if (currentSelectedValue && optionsArray.some(opt => {
+                    const optVal = typeof opt === 'object' ? opt.name || opt.key : opt;
+                    return optVal === currentSelectedValue;
+                })) {
                     // If the previously selected value is still in the new options, re-select it
                     selectElement.value = currentSelectedValue;
                 } else {
@@ -665,67 +697,61 @@
                 return Math.floor((score - 10) / 2);
             }
 
-            // --- Attribute Assignment Logic (Standard Array) ---
-            function updateAttributeDropdowns() {
-                // For each attribute select, update its options
-                for (const attrKey in attributeSelects) {
-                    const selectElement = attributeSelects[attrKey];
-                    const currentValue = assignedAttributeValues[attrKey];
+            // --- Attribute Assignment Logic (Standard Array & Roll Dice) ---
+            function roll4d6dl1() {
+                let rolls = [];
+                for (let i = 0; i < 4; i++) {
+                    rolls.push(Math.floor(Math.random() * 6) + 1);
+                }
+                rolls.sort((a, b) => a - b); // Sort ascending
+                return rolls[1] + rolls[2] + rolls[3]; // Sum top 3
+            }
 
-                    // Clear existing options
-                    selectElement.innerHTML = '<option value="">請選擇</option>';
+            function resetAttributeAssignmentUI() {
+                // Clear all attribute input fields
+                for (const attrKey in attributeInputs) {
+                    attributeInputs[attrKey].value = '';
+                }
 
-                    // Add currently assigned value (if any) to the available list for this specific dropdown
-                    if (currentValue !== null) {
-                        const currentOpt = document.createElement('option');
-                        currentOpt.value = currentValue;
-                        currentOpt.textContent = currentValue;
-                        selectElement.appendChild(currentOpt);
-                    }
-
-                    // Add all truly available values
-                    availableAttributeValues.sort((a, b) => b - a).forEach(value => {
-                        if (value !== currentValue) { // Don't add current value again if already added
-                            const opt = document.createElement('option');
-                            opt.value = value;
-                            opt.textContent = value;
-                            selectElement.appendChild(opt);
-                        }
-                    });
-
-                    // Set the selected value back
-                    if (currentValue !== null) {
-                        selectElement.value = currentValue;
-                    }
+                if (attributeGenerationMethod === 'standard') {
+                    attributeMethodDescription.textContent = '請將以下數值填入各項屬性框中:';
+                    attributeMethodValuesDisplay.textContent = `[${standardArrayValues.join(', ')}]`;
+                    rollDiceAttributeSection.classList.add('hidden');
+                } else { // 'roll'
+                    attributeMethodDescription.textContent = '請投擲骰子，然後將投擲出的數值填入各項屬性框中:';
+                    attributeMethodValuesDisplay.textContent = '請先投擲骰子';
+                    rollDiceAttributeSection.classList.remove('hidden');
+                    rolledAttributeValues = []; // Clear previous rolls
                 }
             }
 
-            // Attach event listeners for attribute assignment
-            for (const attrKey in attributeSelects) {
-                attributeSelects[attrKey].addEventListener('change', (event) => {
-                    const newAssignedValue = event.target.value === "" ? null : parseInt(event.target.value);
-                    const oldAssignedValue = assignedAttributeValues[attrKey];
-
-                    // If there was an old value, return it to the available pool
-                    if (oldAssignedValue !== null) {
-                        availableAttributeValues.push(oldAssignedValue);
-                    }
-
-                    // If a new value is selected, remove it from the available pool
-                    if (newAssignedValue !== null) {
-                        const index = availableAttributeValues.indexOf(newAssignedValue);
-                        if (index > -1) {
-                            availableAttributeValues.splice(index, 1);
-                        }
-                    }
-
-                    // Update the assigned value for this attribute
-                    assignedAttributeValues[attrKey] = newAssignedValue;
-
-                    // Re-render all attribute dropdowns
-                    updateAttributeDropdowns();
+            // Event listeners for attribute method selection
+            attributeMethodRadios.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    attributeGenerationMethod = event.target.value;
+                    resetAttributeAssignmentUI();
                 });
-            }
+            });
+
+            // Event listener for "Roll Attribute Dice" button
+            rollAttributeDiceBtn.addEventListener('click', () => {
+                rolledAttributeValues = [];
+                for (let i = 0; i < 6; i++) {
+                    rolledAttributeValues.push(roll4d6dl1());
+                }
+                rolledAttributeValues.sort((a, b) => b - a); // Sort for display (descending)
+                attributeMethodValuesDisplay.textContent = `[${rolledAttributeValues.join(', ')}]`;
+                
+                // Automatically fill attribute input fields with rolled values
+                const attributeKeys = Object.keys(attributeInputs);
+                for (let i = 0; i < attributeKeys.length; i++) {
+                    const attrKey = attributeKeys[i];
+                    attributeInputs[attrKey].value = rolledAttributeValues[i];
+                }
+            });
+
+            // No need for individual input change listeners for attribute assignment values directly
+            // as validation will happen on character creation.
 
             // --- Half-Elf Bonus Logic ---
             function updateHalfElfBonusDropdowns() {
@@ -747,14 +773,23 @@
             halfElfBonus1Select.addEventListener('change', updateHalfElfBonusDropdowns);
             halfElfBonus2Select.addEventListener('change', updateHalfElfBonusDropdowns);
 
-            // --- Race Selection Logic (for Subraces and Half-Elf) ---
+            // --- Race/Class/Background Selection Logic (for Subraces and Custom Inputs) ---
             charRaceSelect.addEventListener('change', () => {
                 const selectedRaceName = charRaceSelect.value;
                 const selectedRace = races.find(r => r.name === selectedRaceName);
 
-                // Handle Subraces
-                if (selectedRace && selectedRace.subraces && selectedRace.subraces.length > 0) {
-                    populateDropdown(charSubraceSelect, selectedRace.subraces);
+                // Handle Custom Race Input
+                if (selectedRaceName === "自訂") {
+                    customRaceInputContainer.classList.remove('hidden');
+                } else {
+                    customRaceInputContainer.classList.add('hidden');
+                    customRaceInput.value = ''; // Clear custom input when not selected
+                }
+
+                // Handle Subraces (only for non-custom races that have subraces)
+                if (selectedRace && selectedRace.subraces && selectedRace.subraces.length > 0 && selectedRaceName !== "自訂") {
+                    const subraceOptions = selectedRace.subraces.map(sr => typeof sr === 'object' ? sr.name : sr);
+                    populateDropdown(charSubraceSelect, subraceOptions);
                     subraceContainer.classList.remove('hidden');
                 } else {
                     subraceContainer.classList.add('hidden');
@@ -764,10 +799,9 @@
                 // Handle Half-Elf Bonus
                 if (selectedRaceName === "半精靈") {
                     halfElfBonusContainer.classList.remove('hidden');
-                    // Populate with all attributes except CHA for the +1 bonuses initially
                     populateDropdown(halfElfBonus1Select, halfElfBonusAttributes.filter(attr => attr.key !== 'cha'));
                     populateDropdown(halfElfBonus2Select, halfElfBonusAttributes.filter(attr => attr.key !== 'cha'));
-                    updateHalfElfBonusDropdowns(); // Ensure initial state is correct and filters correctly
+                    updateHalfElfBonusDropdowns();
                 } else {
                     halfElfBonusContainer.classList.add('hidden');
                     halfElfBonus1Select.innerHTML = '<option value="">請選擇</option>';
@@ -775,13 +809,25 @@
                 }
             });
 
-            // --- Class Selection Logic (for Skill Proficiencies) ---
             charClassSelect.addEventListener('change', () => {
+                const selectedClassName = charClassSelect.value;
+                if (selectedClassName === "自訂") {
+                    customClassInputContainer.classList.remove('hidden');
+                } else {
+                    customClassInputContainer.classList.add('hidden');
+                    customClassInput.value = '';
+                }
                 updateSkillProficienciesBasedOnClassAndBackground();
             });
 
-            // --- Background Selection Logic (for Skill Proficiencies) ---
             charBackgroundSelect.addEventListener('change', () => {
+                const selectedBackgroundName = charBackgroundSelect.value;
+                if (selectedBackgroundName === "自訂") {
+                    customBackgroundInputContainer.classList.remove('hidden');
+                } else {
+                    customBackgroundInputContainer.classList.add('hidden');
+                    customBackgroundInput.value = '';
+                }
                 updateSkillProficienciesBasedOnClassAndBackground();
             });
 
@@ -802,15 +848,22 @@
                     if (classProf.options && classProf.options.length > 0) {
                         classProf.options.forEach(skillKey => classProficiencyOptions.add(skillKey));
                     } else {
-                        // If no specific options, assume all skills are potential options for class choice
                         allSkills.forEach(skill => classProficiencyOptions.add(skill.key));
                     }
+                } else if (selectedClass === "自訂") {
+                    // For custom class, default to 2 skills from any option
+                    maxClassProficiencies = 2;
+                    allSkills.forEach(skill => classProficiencyOptions.add(skill.key));
                 }
+
 
                 // Apply background-based proficiencies
                 if (selectedBackground && backgroundProficienciesMap[selectedBackground]) {
                     const skillsFromBackground = backgroundProficienciesMap[selectedBackground];
                     skillsFromBackground.forEach(skillKey => backgroundProficienciesSet.add(skillKey));
+                } else if (selectedBackground === "自訂") {
+                    // Custom background grants no default proficiencies
+                    backgroundProficienciesSet.clear();
                 }
 
                 renderSkillProficiencies();
@@ -920,8 +973,17 @@
                 charRaceSelect.value = '';
                 charSubraceSelect.innerHTML = '<option value="">請選擇</option>';
                 subraceContainer.classList.add('hidden');
+                customRaceInputContainer.classList.add('hidden'); // Hide custom input
+                customRaceInput.value = ''; // Clear custom input
+
                 charClassSelect.value = '';
+                customClassInputContainer.classList.add('hidden'); // Hide custom input
+                customClassInput.value = ''; // Clear custom input
+
                 charBackgroundSelect.value = '';
+                customBackgroundInputContainer.classList.add('hidden'); // Hide custom input
+                customBackgroundInput.value = ''; // Clear custom input
+
                 charAlignmentSelect.value = '';
                 
                 backgroundProficienciesSet.clear();
@@ -929,43 +991,47 @@
                 maxClassProficiencies = 0;
                 renderSkillProficiencies();
                 
-                availableAttributeValues = [...standardArrayValues];
-                assignedAttributeValues = { str: null, dex: null, con: null, int: null, wis: null, cha: null };
-                updateAttributeDropdowns();
+                // For random, always use standard array and populate inputs
+                attributeGenerationMethod = 'standard';
+                document.querySelector('input[name="attributeMethod"][value="standard"]').checked = true;
+                resetAttributeAssignmentUI(); // This will reset availableAttributeValues to standardArrayValues
+                
+                // Populate attribute inputs with shuffled standard array values
+                const shuffledAttributes = shuffleArray([...standardArrayValues]);
+                const attributeKeys = Object.keys(attributeInputs);
+                for (let i = 0; i < attributeKeys.length; i++) {
+                    const attrKey = attributeKeys[i];
+                    attributeInputs[attrKey].value = shuffledAttributes[i];
+                }
 
                 halfElfBonusContainer.classList.add('hidden');
                 halfElfBonus1Select.innerHTML = '<option value="">請選擇</option>';
                 halfElfBonus2Select.innerHTML = '<option value="">請選擇</option>';
 
 
-                // 1. Random Race & Subrace
-                const randomRace = getRandomElement(races);
+                // 1. Random Race & Subrace (excluding "自訂")
+                const nonCustomRaces = races.filter(r => r.name !== "自訂");
+                const randomRace = getRandomElement(nonCustomRaces);
                 charRaceSelect.value = randomRace.name;
                 charRaceSelect.dispatchEvent(new Event('change')); // Trigger change to update subrace/half-elf
 
                 if (randomRace.subraces && randomRace.subraces.length > 0) {
-                    charSubraceSelect.value = getRandomElement(randomRace.subraces);
+                    const randomSubraceValue = getRandomElement(randomRace.subraces);
+                    charSubraceSelect.value = typeof randomSubraceValue === 'object' ? randomSubraceValue.name : randomSubraceValue;
                 }
 
-                // 2. Random Class
-                charClassSelect.value = getRandomElement(classes);
+                // 2. Random Class (excluding "自訂")
+                const nonCustomClasses = classes.filter(c => c !== "自訂");
+                charClassSelect.value = getRandomElement(nonCustomClasses);
                 charClassSelect.dispatchEvent(new Event('change')); // Trigger change to update skill options
 
-                // 3. Random Background
-                charBackgroundSelect.value = getRandomElement(backgrounds);
+                // 3. Random Background (excluding "自訂")
+                const nonCustomBackgrounds = backgrounds.filter(b => b !== "自訂");
+                charBackgroundSelect.value = getRandomElement(nonCustomBackgrounds);
                 charBackgroundSelect.dispatchEvent(new Event('change')); // Trigger change to update skill options
 
                 // 4. Random Alignment
                 charAlignmentSelect.value = getRandomElement(alignments);
-
-                // 5. Random Attributes
-                const shuffledAttributes = shuffleArray([...standardArrayValues]);
-                const attributeKeys = Object.keys(attributeSelects);
-                for (let i = 0; i < attributeKeys.length; i++) {
-                    const attrKey = attributeKeys[i];
-                    assignedAttributeValues[attrKey] = shuffledAttributes[i];
-                }
-                updateAttributeDropdowns(); // Update dropdowns with assigned values
 
                 // Handle Half-Elf bonus for random generation
                 if (charRaceSelect.value === "半精靈") {
@@ -1017,42 +1083,129 @@
                 playerNameInput.value = "隨機玩家"; // Assign a default player name for random characters
             });
 
+            /**
+             * Displays a pop-out message near a target element.
+             * @param {HTMLElement} targetElement The element to position the pop-out relative to.
+             * @param {string} message The message to display.
+             * @param {string} idPrefix A unique prefix for the pop-out message ID.
+             * @param {number} duration How long the message should be visible in milliseconds.
+             */
+            function showPopOutMessage(targetElement, message, idPrefix, duration = 2000) {
+                const existingPopOut = document.getElementById(`${idPrefix}PopOutMessage`);
+                if (existingPopOut) {
+                    existingPopOut.remove();
+                }
+
+                const popOutDiv = document.createElement('div');
+                popOutDiv.id = `${idPrefix}PopOutMessage`;
+                popOutDiv.className = 'pop-out-message';
+                popOutDiv.textContent = message;
+
+                const targetRect = targetElement.getBoundingClientRect();
+                const containerRect = document.querySelector('.book-container').getBoundingClientRect();
+
+                // Position relative to the target element, centered
+                popOutDiv.style.left = `${targetRect.left - containerRect.left + targetRect.width / 2}px`;
+                popOutDiv.style.top = `${targetRect.top - containerRect.top + targetRect.height + 10}px`;
+                popOutDiv.style.transform = 'translateX(-50%) translateY(20px) scale(0.8)';
+
+                document.querySelector('.book-container').appendChild(popOutDiv);
+
+                setTimeout(() => {
+                    popOutDiv.classList.add('active');
+                }, 10);
+
+                setTimeout(() => {
+                    popOutDiv.classList.remove('active');
+                    popOutDiv.addEventListener('transitionend', () => {
+                        popOutDiv.remove();
+                    }, { once: true });
+                }, duration);
+            }
+
 
             // --- Character Creation Logic (shared by manual and random) ---
             function createAndDisplayCharacter() {
                 const name = charNameInput.value.trim();
                 const playerName = playerNameInput.value.trim();
-                const race = charRaceSelect.value;
-                const subrace = subraceContainer.classList.contains('hidden') ? null : charSubraceSelect.value;
-                const charClass = charClassSelect.value;
-                const background = charBackgroundSelect.value;
+                let race = charRaceSelect.value;
+                const subraceName = subraceContainer.classList.contains('hidden') ? null : charSubraceSelect.value;
+                let charClass = charClassSelect.value;
+                let background = charBackgroundSelect.value;
                 const alignment = charAlignmentSelect.value;
 
-                // Validate basic fields
+                // Handle custom inputs
+                if (race === "自訂") {
+                    race = customRaceInput.value.trim();
+                    if (!race) {
+                        newCharacterDisplay.innerHTML = '<p class="text-red-300">請輸入自訂種族名稱。</p>';
+                        return;
+                    }
+                }
+                if (charClass === "自訂") {
+                    charClass = customClassInput.value.trim();
+                    if (!charClass) {
+                        newCharacterDisplay.innerHTML = '<p class="text-red-300">請輸入自訂職業名稱。</p>';
+                        return;
+                    }
+                }
+                if (background === "自訂") {
+                    background = customBackgroundInput.value.trim();
+                    if (!background) {
+                        newCharacterDisplay.innerHTML = '<p class="text-red-300">請輸入自訂背景名稱。</p>';
+                        return;
+                    }
+                }
+
+                // Validate basic fields (after custom inputs are resolved)
                 if (!name || !race || !charClass || !background || !alignment) {
                     newCharacterDisplay.innerHTML = '<p class="text-red-300">請填寫所有角色基本資訊。</p>';
                     return;
                 }
-                if (subraceContainer.classList.contains('hidden') === false && !subrace) {
+                if (subraceContainer.classList.contains('hidden') === false && !subraceName) {
                     newCharacterDisplay.innerHTML = '<p class="text-red-300">請選擇亞種。</p>';
                     return;
                 }
 
-                // Validate attribute assignments
-                const finalAttributes = {};
-                let allAttributesAssigned = true;
-                for (const attrKey in assignedAttributeValues) {
-                    if (assignedAttributeValues[attrKey] === null) {
-                        allAttributesAssigned = false;
+                // Validate and collect attribute values from inputs
+                const enteredAttributes = {};
+                let allAttributesValid = true;
+                for (const attrKey in attributeInputs) {
+                    const value = parseInt(attributeInputs[attrKey].value);
+                    if (isNaN(value) || value < 3 || value > 18) { // D&D 5e attributes are usually 3-18
+                        allAttributesValid = false;
                         break;
                     }
-                    finalAttributes[attrKey] = assignedAttributeValues[attrKey];
+                    enteredAttributes[attrKey] = value;
                 }
 
-                if (!allAttributesAssigned) {
-                    newCharacterDisplay.innerHTML = '<p class="text-red-300">請將所有標準屬性值分配給各項屬性。</p>';
+                if (!allAttributesValid) {
+                    newCharacterDisplay.innerHTML = '<p class="text-red-300">請為所有屬性輸入有效的數值 (3-18)。</p>';
                     return;
                 }
+
+                // Validate attribute values against the chosen method
+                const enteredValuesArray = Object.values(enteredAttributes).sort((a,b) => b - a); // Sort descending
+                let targetValuesArray = [];
+                if (attributeGenerationMethod === 'standard') {
+                    targetValuesArray = [...standardArrayValues].sort((a,b) => b - a);
+                    if (JSON.stringify(enteredValuesArray) !== JSON.stringify(targetValuesArray)) {
+                        newCharacterDisplay.innerHTML = `<p class="text-red-300">您輸入的屬性值不符合標準配點 [${standardArrayValues.join(', ')}]。請確保每個數字都使用且僅使用一次。</p>`;
+                        return;
+                    }
+                } else { // 'roll'
+                    if (rolledAttributeValues.length === 0) {
+                        newCharacterDisplay.innerHTML = '<p class="text-red-300">請先投擲屬性骰。</p>';
+                        return;
+                    }
+                    targetValuesArray = [...rolledAttributeValues].sort((a,b) => b - a);
+                    if (JSON.stringify(enteredValuesArray) !== JSON.stringify(targetValuesArray)) {
+                        newCharacterDisplay.innerHTML = `<p class="text-red-300">您輸入的屬性值不符合已投擲的數值 [${rolledAttributeValues.join(', ')}]。請確保每個數字都使用且僅使用一次。</p>`;
+                        return;
+                    }
+                }
+
+                const finalAttributes = { ...enteredAttributes }; // Start with entered values
 
                 // Apply Half-Elf bonuses
                 if (race === "半精靈") {
@@ -1063,6 +1216,23 @@
                     finalAttributes['cha'] = (finalAttributes['cha'] || 0) + 2; // CHA gets +2
                     finalAttributes[halfElfBonus1Select.value] = (finalAttributes[halfElfBonus1Select.value] || 0) + 1;
                     finalAttributes[halfElfBonus2Select.value] = (finalAttributes[halfElfBonus2Select.value] || 0) + 1;
+                }
+
+                // Apply Dragonborn racial bonuses (Strength +2, Charisma +1)
+                let dragonbornDamageType = null;
+                let dragonbornBreathWeapon = null;
+                // Only apply if the selected race is "龍裔" (not "自訂") AND the subrace is valid
+                if (charRaceSelect.value === "龍裔") { // Use charRaceSelect.value to check original selection
+                    finalAttributes['str'] = (finalAttributes['str'] || 0) + 2;
+                    finalAttributes['cha'] = (finalAttributes['cha'] || 0) + 1;
+
+                    // Find the selected Dragonborn subrace object to get its properties
+                    const dragonRace = races.find(r => r.name === "龍裔");
+                    const selectedDragonSubrace = dragonRace.subraces.find(sr => sr.name === subraceName);
+                    if (selectedDragonSubrace) {
+                        dragonbornDamageType = selectedDragonSubrace.damageType;
+                        dragonbornBreathWeapon = selectedDragonSubrace.breathWeapon;
+                    }
                 }
 
                 // Get selected skill proficiencies
@@ -1077,7 +1247,7 @@
 
 
                 const newChar = {
-                    name, playerName, race, subrace, charClass, background, alignment,
+                    name, playerName, race, subrace: subraceName, charClass, background, alignment,
                     level: 1, // Default to level 1
                     currentXP: 0, // Default to 0 XP
                     str: finalAttributes.str,
@@ -1089,7 +1259,11 @@
                     proficiencyBonus: 2, // Default proficiency bonus for level 1
                     proficientSkills: selectedProficientSkills, // Store selected skills
                     gold: 0,
-                    inventory: []
+                    inventory: [],
+                    dragonbornDetails: (charRaceSelect.value === "龍裔" && subraceName) ? { // Use charRaceSelect.value for this check
+                        damageType: dragonbornDamageType,
+                        breathWeapon: dragonbornBreathWeapon
+                    } : null
                 };
 
                 // Display the created character
@@ -1105,6 +1279,14 @@
                     skillsDisplay += '</ul>';
                 }
 
+                let dragonbornDetailsDisplay = '';
+                if (newChar.dragonbornDetails) {
+                    dragonbornDetailsDisplay = `
+                        <p class="mt-2"><span class="font-bold text-dark-text">龍種傷害類型:</span> ${newChar.dragonbornDetails.damageType}</p>
+                        <p><span class="font-bold text-dark-text">龍種噴吐武器:</span> ${newChar.dragonbornDetails.breathWeapon}</p>
+                    `;
+                }
+
                 // --- Easter Egg Logic ---
                 let finalEasterEggMessages = []; // Use an array to store multiple messages
 
@@ -1115,7 +1297,7 @@
                 }
 
                 // 2. Player Name Easter Egg
-                const lowerCasePlayerName = playerName.toLowerCase();
+                const lowerCasePlayerName = playerName.toLowerCase(); // Declare here once
                 for (const trigger in playerNameEasterEggs) {
                     if (lowerCasePlayerName.includes(trigger.toLowerCase())) { // Convert trigger to lowercase for consistent comparison
                         finalEasterEggMessages.push(playerNameEasterEggs[trigger]);
@@ -1123,7 +1305,7 @@
                 }
 
                 // 3. Race-Class Combination Easter Egg
-                const raceClassComboKey = `${race}-${charClass}`;
+                const raceClassComboKey = `${race}-${charClass}`; // Use resolved race/class names
                 if (raceClassEasterEggs[raceClassComboKey]) {
                     finalEasterEggMessages.push(raceClassEasterEggs[raceClassComboKey]);
                 }
@@ -1184,8 +1366,6 @@
                 } else if (currentHour >= 17 && currentHour < 21) { // 5 PM to 8:59 PM
                     finalEasterEggMessages.push('晚上了，出發冒險時記得帶上一盞照明的燈');
                 } else if (currentHour >= 21 || (currentHour >= 0 && currentHour < 2)) { // 9 PM to 1:59 AM (next day)
-                    finalEasterEggMessages.push('也許我們可以考慮休息一晚再出發冒險？');
-                } else if (currentHour >= 2 && currentHour < 5) { // 2 AM to 4:59 AM (深夜彩蛋)
                     finalEasterEggMessages.push('夜深了，只有最勇敢的冒險者才會在這個時候創造角色…或者最失眠的。');
                 }
                 // 新增的時間/日期彩蛋
@@ -1218,6 +1398,28 @@
                     finalEasterEggMessages.push('看來這位冒險家非常精挑細選！');
                 }
 
+                // 7. All 8s or All 18s Easter Egg
+                const allAttributes = Object.values(enteredAttributes);
+                const allEight = allAttributes.every(val => val === 8);
+                const allEighteen = allAttributes.every(val => val === 18);
+
+                if (allEight) {
+                    finalEasterEggMessages.push('地城主的微笑：嗯... 你的角色完美地展現了『平均值以下』的精髓。這可不是一般人能辦到的！地城主已經為你準備好了最『合適』的挑戰，你會發現，即使是最簡單的任務，對你來說也充滿了史詩般的困難。祝你好運，你可能比任何人都需要它！');
+                } else if (allEighteen) {
+                    finalEasterEggMessages.push('地城主的噩夢：看來這次，地城主可要頭疼了。你擲出了如此逆天的屬性，每一個數值都閃耀著不合理的光芒。這意味著你的冒險將一路暢通，那些為凡人設計的陷阱和怪物，在你面前將不堪一擊。地城主可能正在角落裡默默哭泣，思考如何才能給你製造一點點挑戰。幹得漂亮，你徹底碾壓了規則！');
+                }
+
+                // 8. Cat Easter Egg
+                const lowerCaseName = name.toLowerCase();
+                // lowerCasePlayerName is already declared above
+                const lowerCaseRace = race.toLowerCase();
+
+                if (lowerCaseName.includes('貓') && lowerCasePlayerName.includes('貓') && lowerCaseRace.includes('貓')) {
+                    finalEasterEggMessages.push('真正的貓咪冒險者來了！');
+                    showPopOutMessage(newCharacterDisplay, '喵咪喵咪咪喵喵😺', 'cat');
+                }
+
+
                 // Join all easter egg messages with " - " and add the prefix/suffix
                 let easterEggDisplay = '';
                 if (finalEasterEggMessages.length > 0) {
@@ -1245,6 +1447,7 @@
                         <li>魅力 (CHA): ${newChar.cha} (${getAttributeModifier(newChar.cha)})</li>
                     </ul>
                     ${skillsDisplay}
+                    ${dragonbornDetailsDisplay}
                     <p class="mt-2 text-green-300 font-bold">角色創造成功！</p>
                     ${easterEggDisplay}
                 `;
@@ -1255,8 +1458,17 @@
                 charRaceSelect.value = '';
                 charSubraceSelect.innerHTML = '<option value="">請選擇</option>';
                 subraceContainer.classList.add('hidden');
+                customRaceInputContainer.classList.add('hidden');
+                customRaceInput.value = '';
+
                 charClassSelect.value = '';
+                customClassInputContainer.classList.add('hidden');
+                customClassInput.value = '';
+
                 charBackgroundSelect.value = '';
+                customBackgroundInputContainer.classList.add('hidden');
+                customBackgroundInput.value = '';
+                
                 charAlignmentSelect.value = '';
                 
                 backgroundProficienciesSet.clear();
@@ -1264,9 +1476,10 @@
                 maxClassProficiencies = 0;
                 renderSkillProficiencies();
                 
-                availableAttributeValues = [...standardArrayValues];
-                assignedAttributeValues = { str: null, dex: null, con: null, int: null, wis: null, cha: null };
-                updateAttributeDropdowns();
+                // Reset attribute generation method to standard and clear inputs
+                attributeGenerationMethod = 'standard';
+                document.querySelector('input[name="attributeMethod"][value="standard"]').checked = true;
+                resetAttributeAssignmentUI(); // This will clear inputs and reset method info
 
                 halfElfBonusContainer.classList.add('hidden');
                 halfElfBonus1Select.innerHTML = '<option value="">請選擇</option>';
@@ -1288,7 +1501,7 @@
             populateDropdown(charClassSelect, classes);
             populateDropdown(charAlignmentSelect, alignments);
             populateDropdown(charBackgroundSelect, backgrounds);
-            updateAttributeDropdowns(); // Initialize attribute dropdowns
+            resetAttributeAssignmentUI(); // Initialize attribute method and inputs
             updateSkillProficienciesBasedOnClassAndBackground(); // Initialize skill checkboxes based on default empty selections
 
             // Title Click Easter Egg
@@ -1307,42 +1520,7 @@
                 }, displayClickInterval); // Reusing displayClickInterval for title
 
                 if (titleClickCount > titleClickThreshold) { // Changed to > 5
-                    const message = "哎呀別顧著點我了，快創作你的角色吧！";
-                    const existingPopOut = document.getElementById('titlePopOutMessage');
-                    if (existingPopOut) {
-                        existingPopOut.remove(); // Remove existing one if multiple clicks
-                    }
-
-                    const popOutDiv = document.createElement('div');
-                    popOutDiv.id = 'titlePopOutMessage';
-                    popOutDiv.className = 'pop-out-message';
-                    popOutDiv.textContent = message;
-
-                    // Position the pop-out message relative to the title
-                    const titleRect = mainTitle.getBoundingClientRect();
-                    const containerRect = document.querySelector('.book-container').getBoundingClientRect(); // Get container for relative positioning
-
-                    popOutDiv.style.left = `${titleRect.left - containerRect.left + titleRect.width / 2}px`;
-                    popOutDiv.style.top = `${titleRect.top - containerRect.top + titleRect.height + 10}px`; /* Position below title + some margin */
-                    popOutDiv.style.transform = 'translateX(-50%) translateY(20px) scale(0.8)'; /* Centered horizontally, slightly below, scaled down */
-
-                    // Append to the book container for proper relative positioning within the book
-                    document.querySelector('.book-container').appendChild(popOutDiv);
-
-                    // Trigger animation
-                    setTimeout(() => {
-                        popOutDiv.classList.add('active');
-                    }, 10); // Small delay to ensure CSS transition applies
-
-                    // Remove after a duration
-                    setTimeout(() => {
-                        popOutDiv.classList.remove('active');
-                        // Remove the element after the fade-out transition completes
-                        popOutDiv.addEventListener('transitionend', () => {
-                            popOutDiv.remove();
-                        }, { once: true });
-                    }, 2000); // Message visible for 2 seconds
-
+                    showPopOutMessage(mainTitle, "哎呀別顧著點我了，快創作你的角色吧！", 'title');
                     titleClickCount = 0; // Reset after triggering
                 }
             });
@@ -1363,38 +1541,7 @@
                 }, displayClickInterval);
 
                 if (displayClickCount >= displayClickThreshold) {
-                    const message = "你是不是太無聊了？這裡沒有寶藏哦！";
-                    const existingPopOut = document.getElementById('displayPopOutMessage');
-                    if (existingPopOut) {
-                        existingPopOut.remove();
-                    }
-
-                    const popOutDiv = document.createElement('div');
-                    popOutDiv.id = 'displayPopOutMessage';
-                    popOutDiv.className = 'pop-out-message';
-                    popOutDiv.textContent = message;
-
-                    // Position relative to the newCharacterDisplay
-                    const displayRect = newCharacterDisplay.getBoundingClientRect();
-                    const containerRect = document.querySelector('.book-container').getBoundingClientRect();
-
-                    popOutDiv.style.left = `${displayRect.left - containerRect.left + displayRect.width / 2}px`;
-                    popOutDiv.style.top = `${displayRect.top - containerRect.top + displayRect.height / 2}px`;
-                    popOutDiv.style.transform = 'translateX(-50%) translateY(-50%) scale(0.8)';
-
-                    document.querySelector('.book-container').appendChild(popOutDiv);
-
-                    setTimeout(() => {
-                        popOutDiv.classList.add('active');
-                    }, 10);
-
-                    setTimeout(() => {
-                        popOutDiv.classList.remove('active');
-                        popOutDiv.addEventListener('transitionend', () => {
-                            popOutDiv.remove();
-                        }, { once: true });
-                    }, 2000);
-
+                    showPopOutMessage(newCharacterDisplay, "你是不是太無聊了？這裡沒有寶藏哦！", 'display');
                     displayClickCount = 0; // Reset after triggering
                 }
             });
