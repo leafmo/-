@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D 5E 角色卡生成器</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font - Keeping for readability, but using medieval-inspired colors -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for a medieval book aesthetic */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Reverted background to dark brown with subtle texture placeholder */
+            background-color: #4a2c0f; /* Dark brown, reminiscent of old wood/leather */
+            background-image: url('https://placehold.co/1920x1080/4a2c0f/4a2c0f?text='); /* Placeholder for a subtle wood texture */
+            background-size: cover;
+            color: #3e2723; /* Dark brown text for readability on light backgrounds */
+            min-height: 100vh; /* Ensure it takes at least full viewport height */
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            display: flex; /* Use flexbox to center content */
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Main container to mimic a book - now with parchment style */
+        .book-container {
+            background-color: #fbf8e8; /* Warmer, yellowish parchment color */
+            border: 10px solid #8b4513; /* Saddle brown for book cover/binding */
+            border-radius: 15px; /* Softer, aged corners */
+            box-shadow: 15px 15px 30px rgba(0, 0, 0, 0.5); /* Deeper shadow for book effect */
+            padding: 30px;
+            max-width: 800px; /* Adjusted max-width for a single-purpose creator */
+            width: 100%;
+            display: flex; /* Use flexbox for single column layout */
+            flex-direction: column;
+            gap: 1.5rem; /* 24px gap between sections */
+            position: relative;
+            filter: sepia(0.1); /* Subtle sepia filter for an aged paper look */
+            z-index: 1; /* Ensure it's above decorations */
+            margin: 20px auto; /* Center the container horizontally and add vertical margin */
+        }
+
+        /* Panel styling - now lighter parchment for inner pages */
+        .panel {
+            background-color: #fffaf0; /* Lighter parchment for inner pages */
+            border: 2px solid #a0522d; /* Sienna for page borders */
+            border-radius: 8px; /* Slightly rounded page corners */
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+            padding: 25px;
+        }
+
+        /* Input, textarea, select styling - matching new parchment tones */
+        input, textarea, select {
+            background-color: #fffaf5; /* Very light parchment for input fields */
+            border: 1px solid #8b4513; /* Darker brown for input borders */
+            color: #3e2723; /* Dark brown text */
+            transition: all 0.2s ease-in-out;
+            border-radius: 44px; /* Slightly rounded for a softer look */
+            padding: 0.75rem; /* Consistent padding */
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #a0522d; /* Sienna for focus */
+            box-shadow: 0 0 0 2px rgba(160, 82, 45, 0.5); /* Subtle focus ring */
+            outline: none; /* Remove default outline */
+        }
+
+        /* Button styling */
+        button {
+            background-color: #a0522d; /* Sienna for buttons */
+            color: white;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: 2px outset #8b4513; /* Raised, carved look */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease-in-out;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle text shadow */
+        }
+        button:hover {
+            background-color: #8b4513; /* Darker sienna on hover */
+            transform: translateY(-1px); /* Slight lift */
+            box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.3);
+        }
+        button:disabled {
+            background-color: #c0a080; /* Lighter brown for disabled */
+            border-color: #a08060;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            text-shadow: none;
+        }
+        .btn-primary {
+            background-color: #a0522d;
+            border-color: #8b4513;
+        }
+        .btn-primary:hover {
+            background-color: #8b4513;
+        }
+        .btn-success {
+            background-color: #047857; /* Darker emerald for success */
+            border-color: #065f46;
+        }
+        .btn-success:hover {
+            background-color: #065f46;
+        }
+
+        /* Headings and list titles */
+        h2 {
+            font-family: 'Noto Serif TC', serif; /* Changed to Noto Serif TC */
+            color: #3e2723; /* Dark brown for headings */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle embossed effect */
+        }
+        h3 {
+            font-family: 'Noto Serif TC', serif; /* Changed to Noto Serif TC */
+            color: #3e2723; /* Dark brown for subheadings */
+        }
+        h4 {
+            font-family: 'Noto Serif TC', serif; /* Changed to Noto Serif TC */
+            color: #3e2723; /* Dark brown for subheadings */
+        }
+
+        /* Text colors for specific elements */
+        .text-purple-400 {
+            color: #3e2723; /* Dark brown for main headings */
+        }
+        .text-purple-300 {
+            color: #3e2723; /* Dark brown for subheadings */
+        }
+        .text-dark-text {
+            color: #3e2723; /* Dark brown for primary text */
+        }
+        .text-dark-text-secondary {
+            color: #6d4c41; /* Slightly lighter brown for secondary text */
+        }
+        .text-green-300 { /* Success messages */
+            color: #046c4e;
+        }
+        .text-red-300 { /* Error messages */
+            color: #881313;
+        }
+        .text-gray-400 { /* Placeholder text and log entries */
+            color: #6d4c41; /* Darker brown for faded text */
+        }
+
+        /* Skill checkbox specific styling */
+        .skill-checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .skill-checkbox-container input[type="checkbox"] {
+            margin-right: 8px;
+            width: 18px; /* Larger checkbox */
+            height: 18px;
+            accent-color: #a0522d; /* Sienna accent for checked state */
+        }
+        .skill-checkbox-container label {
+            font-size: 0.95rem;
+            color: #3e2723;
+            cursor: pointer;
+        }
+        .skill-checkbox-container input[type="checkbox"]:disabled + label {
+            color: #6d4c41; /* Faded text for disabled skills */
+            font-style: italic;
+        }
+
+        /* Pop-out message styling */
+        .pop-out-message {
+            position: absolute;
+            background-color: #f0e68c; /* Khaki/parchment color */
+            border: 2px solid #a0522d;
+            border-radius: 8px;
+            padding: 15px 25px; /* Increased padding */
+            font-size: 1.5rem; /* Increased font size */
+            font-weight: bold;
+            color: #3e2723;
+            text-align: center;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(20px) scale(0.8);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            z-index: 1000; /* Ensure it's on top */
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .pop-out-message.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <div class="book-container">
+
+        <!-- Character Creation Panel -->
+        <div class="panel p-6 rounded-xl">
+            <h2 id="mainTitle" class="text-3xl font-extrabold mb-6 text-center text-purple-400 cursor-pointer">✨ 創造您的角色</h2>
+            
+            <div class="mb-4">
+                <label for="charName" class="block text-sm font-medium mb-1 text-dark-text">角色名稱:</label>
+                <input type="text" id="charName" class="w-full p-3 rounded-lg" placeholder="輸入角色名稱">
+            </div>
+
+            <!-- Player Name Input -->
+            <div class="mb-4">
+                <label for="playerName" class="block text-sm font-medium mb-1 text-dark-text">玩家名稱:</label>
+                <input type="text" id="playerName" class="w-full p-3 rounded-lg" placeholder="輸入玩家名稱">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="charRace" class="block text-sm font-medium mb-1 text-dark-text">種族:</label>
+                    <select id="charRace" class="w-full p-3 rounded-lg">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div id="customRaceInputContainer" class="hidden">
+                    <label for="customRace" class="block text-sm font-medium mb-1 text-dark-text">自訂種族名稱:</label>
+                    <input type="text" id="customRace" class="w-full p-3 rounded-lg" placeholder="輸入自訂種族名稱">
+                </div>
+                <div id="subraceContainer" class="hidden">
+                    <label for="charSubrace" class="block text-sm font-medium mb-1 text-dark-text">亞種:</label>
+                    <select id="charSubrace" class="w-full p-3 rounded-lg">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- New: Race Characteristics Display -->
+            <div id="raceCharacteristicsDisplay" class="panel p-4 rounded-lg min-h-[80px] mb-6">
+                <p class="text-gray-400">選定種族的特性將顯示在這裡...</p>
+            </div>
+            <!--------------------------------------->
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="charClass" class="block text-sm font-medium mb-1 text-dark-text">職業:</label>
+                    <select id="charClass" class="w-full p-3 rounded-lg">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <!-- New: Class Info Link -->
+                    <p class="text-xs text-dark-text-secondary mt-1">
+                        <a href="https://sites.google.com/view/dnd5e-2/%E8%81%B7%E6%A5%AD?authuser=0" target="_blank" class="text-blue-600 hover:underline">
+                            點此參考職業詳細資訊 (生命骰、熟練項等)
+                        </a>
+                    </p>
+                    <!------------------------->
+                </div>
+                <div id="customClassInputContainer" class="hidden">
+                    <label for="customClass" class="block text-sm font-medium mb-1 text-dark-text">自訂職業名稱:</label>
+                    <input type="text" id="customClass" class="w-full p-3 rounded-lg" placeholder="輸入自訂職業名稱">
+                </div>
+                <div>
+                    <label for="charBackground" class="block text-sm font-medium mb-1 text-dark-text">背景:</label>
+                    <select id="charBackground" class="w-full p-3 rounded-lg">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div id="customBackgroundInputContainer" class="hidden">
+                    <label for="customBackground" class="block text-sm font-medium mb-1 text-dark-text">自訂背景名稱:</label>
+                    <input type="text" id="customBackground" class="w-full p-3 rounded-lg" placeholder="輸入自訂背景名稱">
+                </div>
+            </div>
+
+            <!-- New: Background Characteristics Display -->
+            <div id="backgroundCharacteristicsDisplay" class="panel p-4 rounded-lg min-h-[80px] mb-6">
+                <p class="text-gray-400">選定背景的特性將顯示在這裡...</p>
+            </div>
+            <!--------------------------------------->
+
+            <div class="mb-4">
+                <label for="charAlignment" class="block text-sm font-medium mb-1 text-dark-text">陣營:</label>
+                <select id="charAlignment" class="w-full p-3 rounded-lg">
+                    <!-- Options will be populated by JavaScript -->
+                    </select>
+            </div>
+
+            <!-- Modified Feat Input Field -->
+            <div class="mb-6">
+                <label for="charFeat" class="block text-sm font-medium mb-1 text-dark-text">專長 (可選):</label>
+                <!-- Changed from input type="text" to select -->
+                <select id="charFeat" class="w-full p-3 rounded-lg">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            <!------------------------->
+
+            <h3 class="text-xl font-semibold mb-4 mt-4 text-purple-300">屬性值:</h3>
+            <div class="mb-4 flex flex-col sm:flex-row sm:items-center">
+                <label class="inline-flex items-center text-dark-text mb-2 sm:mb-0 sm:mr-4">
+                    <input type="radio" name="attributeMethod" value="standard" class="form-radio h-4 w-4 text-a0522d" checked>
+                    <span class="ml-2">標準配點 (15, 14, 13, 12, 10, 8)</span>
+                </label>
+                <label class="inline-flex items-center text-dark-text">
+                    <input type="radio" name="attributeMethod" value="roll" class="form-radio h-4 w-4 text-a0522d">
+                    <span class="ml-2">骰點生成 (4d6dl1)</span>
+                </label>
+            </div>
+
+            <div id="attributeMethodInfo" class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200 text-dark-text-secondary">
+                <p id="attributeMethodDescription"></p>
+                <p id="attributeMethodValues" class="font-bold text-dark-text mt-1"></p>
+            </div>
+
+            <div id="rollDiceAttributeSection" class="hidden mb-4">
+                <button id="rollAttributeDiceBtn" class="w-full btn-primary py-3 px-6 rounded-lg mb-4">
+                    投擲屬性骰 (4d6dl1)
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <div><label for="assignStr" class="block text-sm font-medium mb-1 text-dark-text">力量 (STR):</label><input type="number" id="assignStr" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignDex" class="block text-sm font-medium mb-1 text-dark-text">敏捷 (DEX):</label><input type="number" id="assignDex" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignCon" class="block text-sm font-medium mb-1 text-dark-text">體質 (CON):</label><input type="number" id="assignCon" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignInt" class="block text-sm font-medium mb-1 text-dark-text">智力 (INT):</label><input type="number" id="assignInt" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignWis" class="block text-sm font-medium mb-1 text-dark-text">感知 (WIS):</label><input type="number" id="assignWis" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+                <div><label for="assignCha" class="block text-sm font-medium mb-1 text-dark-text">魅力 (CHA):</label><input type="number" id="assignCha" class="w-full p-3 rounded-lg" min="3" max="18"></div>
+            </div>
+
+            <div id="halfElfBonusContainer" class="hidden bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6 text-dark-text-secondary">
+                <p class="font-bold mb-2">半精靈額外加點:</p>
+                <p class="mb-2">魅力 (CHA) 自動獲得 +2。</p>
+                <p class="mb-2">請為兩個不同的非魅力屬性各選擇 +1:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="halfElfBonus1" class="block text-sm font-medium mb-1">選擇屬性 1:</label>
+                        <select id="halfElfBonus1" class="w-full p-3 rounded-lg"></select>
+                    </div>
+                    <div>
+                        <label for="halfElfBonus2" class="block text-sm font-medium mb-1">選擇屬性 2:</label>
+                        <select id="halfElfBonus2" class="w-full p-3 rounded-lg"></select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New: Human (Variant) Bonus Section -->
+            <div id="humanVariantBonusContainer" class="hidden bg-blue-100 p-4 rounded-lg border border-blue-400 mb-6 text-dark-text-secondary">
+                <p class="font-bold mb-2">人類(變體)額外加點:</p>
+                <p class="mb-2">請為兩個不同的屬性各選擇 +1:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="humanVariantBonus1" class="block text-sm font-medium mb-1">選擇屬性 1:</label>
+                        <select id="humanVariantBonus1" class="w-full p-3 rounded-lg"></select>
+                    </div>
+                    <div>
+                        <label for="humanVariantBonus2" class="block text-sm font-medium mb-1">選擇屬性 2:</label>
+                        <select id="humanVariantBonus2" class="w-full p-3 rounded-lg"></select>
+                    </div>
+                </div>
+                <p class="mt-2">您還將獲得一個額外技能的選擇。</p>
+                <p class="mt-1">您獲得一個額外專長。請在上方「專長」欄位中輸入您選擇的專長名稱。</p>
+            </div>
+            <!--------------------------------------->
+
+            <div id="simicHybridBonusContainer" class="hidden bg-purple-100 p-4 rounded-lg border border-purple-400 mb-6 text-dark-text-secondary">
+                <p class="font-bold mb-2">析米克混合體額外加點:</p>
+                <p class="mb-2">體質 (CON) 自動獲得 +2。</p>
+                <p class="mb-2">請為一個額外屬性選擇 +1:</p>
+                <div>
+                    <label for="simicHybridBonus" class="block text-sm font-medium mb-1">選擇屬性:</label>
+                    <select id="simicHybridBonus" class="w-full p-3 rounded-lg"></select>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 mt-4 text-purple-300">技能選擇 (無熟練加成):</h3>
+            <p id="skillProficiencyCounter" class="text-sm mb-4 text-dark-text-secondary">請選擇技能。</p>
+            <div id="skillProficiencyContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mb-6">
+                <!-- Skill checkboxes will be populated here by JavaScript -->
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                <button id="createCharacterBtn" class="w-full btn-primary py-3 px-6 rounded-lg">
+                    創造角色
+                </button>
+                <button id="randomCharacterBtn" class="w-full btn-success py-3 px-6 rounded-lg">
+                    隨機生成角色
+                </button>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-purple-300">您的新角色:</h3>
+            <div id="newCharacterDisplay" class="panel p-4 rounded-lg min-h-[150px]">
+                <p class="text-gray-400">角色資訊將顯示在這裡...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Character Creation Elements
+            const mainTitle = document.getElementById('mainTitle');
+            const charNameInput = document.getElementById('charName');
+            const playerNameInput = document.getElementById('playerName');
+            const charRaceSelect = document.getElementById('charRace');
+            const customRaceInputContainer = document.getElementById('customRaceInputContainer');
+            const customRaceInput = document.getElementById('customRace');
+            const charSubraceSelect = document.getElementById('charSubrace');
+            const subraceContainer = document.getElementById('subraceContainer');
+            const raceCharacteristicsDisplay = document.getElementById('raceCharacteristicsDisplay'); // New element
+            const charClassSelect = document.getElementById('charClass');
+            const customClassInputContainer = document.getElementById('customClassInputContainer');
+            const customClassInput = document.getElementById('customClass');
+            const charBackgroundSelect = document.getElementById('charBackground');
+            const customBackgroundInputContainer = document.getElementById('customBackgroundInputContainer');
+            const customBackgroundInput = document.getElementById('customBackground');
+            const backgroundCharacteristicsDisplay = document.getElementById('backgroundCharacteristicsDisplay'); // New element for background characteristics
+            const charAlignmentSelect = document.getElementById('charAlignment');
+            const charFeatSelect = document.getElementById('charFeat'); // Changed to select element
+
+            // Attribute Assignment Elements
+            const attributeMethodRadios = document.querySelectorAll('input[name="attributeMethod"]');
+            const attributeMethodInfo = document.getElementById('attributeMethodInfo');
+            const attributeMethodDescription = document.getElementById('attributeMethodDescription');
+            const attributeMethodValuesDisplay = document.getElementById('attributeMethodValues');
+            const rollDiceAttributeSection = document.getElementById('rollDiceAttributeSection');
+            const rollAttributeDiceBtn = document.getElementById('rollAttributeDiceBtn');
+
+            const assignStrInput = document.getElementById('assignStr');
+            const assignDexInput = document.getElementById('assignDex');
+            const assignConInput = document.getElementById('assignCon');
+            const assignIntInput = document.getElementById('assignInt');
+            const assignWisInput = document.getElementById('assignWis');
+            const assignChaInput = document.getElementById('assignCha');
+            const attributeInputs = {
+                str: assignStrInput,
+                dex: assignDexInput,
+                con: assignConInput,
+                int: assignIntInput,
+                wis: assignWisInput,
+                cha: assignChaInput
+            };
+
+            const halfElfBonusContainer = document.getElementById('halfElfBonusContainer');
+            const halfElfBonus1Select = document.getElementById('halfElfBonus1');
+            const halfElfBonus2Select = document.getElementById('halfElfBonus2');
+
+            const humanVariantBonusContainer = document.getElementById('humanVariantBonusContainer');
+            const humanVariantBonus1Select = document.getElementById('humanVariantBonus1');
+            const humanVariantBonus2Select = document.getElementById('humanVariantBonus2');
+
+            // New: Simic Hybrid Bonus Elements
+            const simicHybridBonusContainer = document.getElementById('simicHybridBonusContainer');
+            const simicHybridBonusSelect = document.getElementById('simicHybridBonus');
+
+            const allAttributesForBonus = [ // Global constant for all 6 attributes for Human (Variant) and Simic Hybrid
+                { key: 'str', name: '力量 (STR)' },
+                { key: 'dex', name: '敏捷 (DEX)' },
+                { key: 'con', name: '體質 (CON)' },
+                { key: 'int', name: '智力 (INT)' },
+                { key: 'wis', name: '感知 (WIS)' },
+                { key: 'cha', name: '魅力 (CHA)' }
+            ];
+
+            // Skill Proficiency Elements
+            const skillProficiencyContainer = document.getElementById('skillProficiencyContainer');
+            const skillProficiencyCounter = document.getElementById('skillProficiencyCounter');
+            
+            // New constants for skill proficiency
+            // BASE_USER_SELECTABLE_SKILLS is no longer used as a base, but for Human Variant bonus
+            let maxUserSelectableSkills = 0; // Will be calculated dynamically based on class + race
+
+            let backgroundProficienciesSet = new Set(); // To store skills granted by background
+            let classProficiencyOptions = new Set(); // To store skills allowed by class
+
+            const createCharacterBtn = document.getElementById('createCharacterBtn');
+            const randomCharacterBtn = document.getElementById('randomCharacterBtn');
+            const newCharacterDisplay = document.getElementById('newCharacterDisplay');
+
+            // Easter Egg Counters
+            let randomButtonClickCount = 0; // For "Picky Adventurer" Easter Egg
+            let titleClickCount = 0; // For Title Click Easter Egg
+            let titleLastClickTime = 0;
+            let titleClickTimeout = null;
+            const titleClickThreshold = 5; // Number of clicks to trigger title easter egg
+
+            // Continuous Click Easter Egg variables for newCharacterDisplay
+            let displayClickCount = 0;
+            let displayLastClickTime = 0;
+            let displayClickTimeout = null;
+            const displayClickThreshold = 5; // Number of clicks to trigger display easter egg
+            const displayClickInterval = 1000; // Time in ms between clicks to count as continuous
+
+
+            // --- Data for Dropdowns and Logic ---
+            // Comprehensive data for all races and their properties
+            const allRacesData = [
+                // 人類 (Human)
+                { id: "human_base", name: "人類", parentRaceId: null, bonuses: { str: 1, dex: 1, con: 1, int: 1, wis: 1, cha: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+                { id: "human_variant", name: "人類(變體)", parentRaceId: "human_base", bonuses: {}, flexibleBonuses: 2, flexibleBonusType: "any", skillBonus: 1, featBonus: 1, size: "中型", source: "PHB" },
+
+                // 人魚 (Merfolk) - No subraces
+                { id: "merfolk", name: "人魚", parentRaceId: null, bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 元素裔 (Genasi) - Base and subraces
+                { id: "genasi_base", name: "元素裔", parentRaceId: null, bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "EEPC" },
+                { id: "genasi_earth", name: "土", parentRaceId: "genasi_base", bonuses: { str: 1, con: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "EEPC" },
+                { id: "genasi_air", name: "氣", parentRaceId: "genasi_base", bonuses: { dex: 1, con: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "EEPC" },
+                { id: "genasi_water", name: "水", parentRaceId: "genasi_base", bonuses: { con: 2, wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "EEPC" },
+                { id: "genasi_fire", name: "火", parentRaceId: "genasi_base", bonuses: { con: 2, int: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "EEPC" },
+
+                // 半人馬 (Centaur) - No subraces
+                { id: "centaur", name: "半人馬", parentRaceId: null, bonuses: { str: 2, wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "GGR" },
+
+                // 半獸人 (Half-Orc) - No subraces
+                { id: "half_orc", name: "半獸人", parentRaceId: null, bonuses: { str: 2, con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+
+                // 半精靈 (Half-Elf) - Base has CHA+2, flexible. Subraces inherit this.
+                { id: "half_elf_base", name: "半精靈", parentRaceId: null, bonuses: { cha: 2 }, flexibleBonuses: 2, flexibleBonusType: "nonCha", skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+                { id: "half_elf_drow", name: "卓爾血統", parentRaceId: "half_elf_base", bonuses: { cha: 2 }, flexibleBonuses: 2, flexibleBonusType: "nonCha", skillBonus: 0, featBonus: 0, size: "中型", source: "SCAG" },
+                { id: "half_elf_moon_sun", name: "月精靈或日精靈血統", parentRaceId: "half_elf_base", bonuses: { cha: 2 }, flexibleBonuses: 2, flexibleBonusType: "nonCha", skillBonus: 0, featBonus: 0, size: "中型", source: "SCAG" },
+                { id: "half_elf_wood", name: "木精靈血統", parentRaceId: "half_elf_base", bonuses: { cha: 2 }, flexibleBonuses: 2, flexibleBonusType: "nonCha", skillBonus: 0, featBonus: 0, size: "中型", source: "SCAG" },
+                { id: "half_elf_aquatic", name: "水生精靈血統", parentRaceId: "half_elf_base", bonuses: { cha: 2 }, flexibleBonuses: 2, flexibleBonusType: "nonCha", skillBonus: 0, featBonus: 0, size: "中型", source: "SCAG" },
+
+                // 半身人 (Halfling) - Base and subraces
+                { id: "halfling_base", name: "半身人", parentRaceId: null, bonuses: { dex: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "PHB" },
+                { id: "halfling_stout", name: "強魄", parentRaceId: "halfling_base", bonuses: { con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "PHB" },
+                { id: "halfling_lightfoot", name: "輕足", parentRaceId: "halfling_base", bonuses: { cha: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "PHB" },
+                { id: "halfling_ghostwise", name: "鬼智", parentRaceId: "halfling_base", bonuses: { wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "SCAG" },
+
+                // 吉斯人 (Gith) - Base and subraces
+                { id: "gith_base", name: "吉斯人", parentRaceId: null, bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" },
+                { id: "gith_yanki", name: "吉斯洋基", parentRaceId: "gith_base", bonuses: { str: 2, int: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" },
+                { id: "gith_zerai", name: "吉斯澤萊", parentRaceId: "gith_base", bonuses: { int: 1, wis: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" },
+
+                // 哥布林 (Goblin) - Base and subraces
+                { id: "goblin_base", name: "哥布林", parentRaceId: null, bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "VGM" }, // Using VGM as default source/size
+                { id: "goblin_vgm", name: "VGM", parentRaceId: "goblin_base", bonuses: { dex: 2, con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "VGM" },
+                { id: "goblin_dmg", name: "DMG", parentRaceId: "goblin_base", bonuses: { str: -2, dex: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "DMG" },
+                { id: "goblin_ggr", name: "GGR", parentRaceId: "goblin_base", bonuses: { dex: 2, con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "GGR" },
+
+                // 地侏 (Gnome) - Base and subraces
+                { id: "gnome_base", name: "地侏", parentRaceId: null, bonuses: { int: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "PHB" }, // Using PHB Forest Gnome as the base for the common INT bonus
+                { id: "gnome_deep_mtf", name: "地底 (MTF)", parentRaceId: "gnome_base", bonuses: { dex: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "MTF" },
+                { id: "gnome_deep_dmg", name: "地底 (DMG)", parentRaceId: "gnome_base", bonuses: { str: 1, dex: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" }, // DMG Deep Gnome has different base, so adjust
+                { id: "gnome_deep_eepc", name: "地底 (EEPC)", parentRaceId: "gnome_base", bonuses: { dex: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "EEPC" },
+                { id: "gnome_rock", name: "岩", parentRaceId: "gnome_base", bonuses: { con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "PHB" },
+                { id: "gnome_forest", name: "林", parentRaceId: "gnome_base", bonuses: { dex: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "PHB" },
+
+                // 大哥布林 (Hobgoblin) - Base and subraces
+                { id: "hobgoblin_base", name: "大哥布林", parentRaceId: null, bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "hobgoblin_vgm", name: "VGM", parentRaceId: "hobgoblin_base", bonuses: { con: 2, int: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "hobgoblin_dmg", name: "DMG", parentRaceId: "hobgoblin_base", bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 天狗 (Kenku) - Base and subraces
+                { id: "kenku_base", name: "天狗", parentRaceId: null, bonuses: { dex: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "kenku_vgm", name: "VGM", parentRaceId: "kenku_base", bonuses: { wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "kenku_dmg", name: "DMG", parentRaceId: "kenku_base", bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 寇濤魚人 (Kuo-Toa) - No subraces
+                { id: "kuo_toa", name: "寇濤魚人", parentRaceId: null, bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 戰蜥人 (Lizardfolk) - Monster race, no subraces
+                { id: "lizardfolk_monster_dmg", name: "戰蜥人 (DMG)", parentRaceId: null, bonuses: { str: 2, con: 2, int: -4, cha: -4 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 提夫林 (Tiefling) - Base and subraces
+                { id: "tiefling_base", name: "提夫林", parentRaceId: null, bonuses: { int: 1, cha: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+                { id: "tiefling_baalzebul", name: "巴力西卜", parentRaceId: "tiefling_base", bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+                { id: "tiefling_zariel", name: "扎瑞爾", parentRaceId: "tiefling_base", bonuses: { str: 1, int: -1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+                { id: "tiefling_glasya", name: "格萊希亞", parentRaceId: "tiefling_base", bonuses: { dex: 1, int: -1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+                { id: "tiefling_mephistopheles", name: "梅菲斯托費勒斯", parentRaceId: "tiefling_base", bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+                { id: "tiefling_dispater", name: "狄斯帕特", parentRaceId: "tiefling_base", bonuses: { dex: 1, int: -1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+                { id: "tiefling_mammon", name: "瑪門", parentRaceId: "tiefling_base", bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+                { id: "tiefling_fierna", name: "菲爾娜", parentRaceId: "tiefling_base", bonuses: { wis: 1, int: -1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+                { id: "tiefling_levistus", name: "萊維斯圖斯", parentRaceId: "tiefling_base", bonuses: { con: 1, int: -1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+                { id: "tiefling_variant", name: "變體", parentRaceId: "tiefling_base", bonuses: { int: 1 }, flexibleBonuses: 1, flexibleBonusType: "dexOrCha", skillBonus: 0, featBonus: 0, size: "中型", source: "SCAG" }, // This variant has different base bonuses, kept as is.
+                { id: "tiefling_asmodeus", name: "阿斯莫德", parentRaceId: "tiefling_base", bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" }, // Bonuses adjusted to be relative to base
+
+                // 斑貓人 (Tabaxi) - No subraces
+                { id: "tabaxi", name: "斑貓人", parentRaceId: null, bonuses: { dex: 2, cha: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+
+                // 析米克混合體 (Simic Hybrid) - No subraces
+                { id: "simic_hybrid", name: "析米克混合體", parentRaceId: null, bonuses: { con: 2 }, flexibleBonuses: 1, flexibleBonusType: "any", skillBonus: 0, featBonus: 0, size: "中型", source: "GGR" },
+
+                // 梭螺魚人 (Sahuagin) - No subraces
+                { id: "sahuagin", name: "梭螺魚人", parentRaceId: null, bonuses: { str: 1, con: 1, cha: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+
+                // 歌利亞 (Goliath) - No subraces
+                { id: "goliath", name: "歌利亞", parentRaceId: null, bonuses: { str: 2, con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+
+                // 殭屍 (Zombie) - Monster race, no subraces
+                { id: "zombie_dmg", name: "殭屍 (DMG)", parentRaceId: null, bonuses: { str: 1, con: 2, int: -6, wis: -4, cha: -4 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 熊地精 (Bugbear) - No subraces
+                { id: "bugbear", name: "熊地精", parentRaceId: null, bonuses: { str: 2, dex: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+
+                // 狂蛙人 (Grung) - No subraces
+                { id: "grung", name: "狂蛙人", parentRaceId: null, bonuses: { int: -2, cha: -2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 狗頭人 (Kobold) - Base and subraces
+                { id: "kobold_base", name: "狗頭人", parentRaceId: null, bonuses: { dex: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "VGM" },
+                { id: "kobold_vgm", name: "VGM", parentRaceId: "kobold_base", bonuses: { str: -2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "VGM" },
+                { id: "kobold_dmg", name: "DMG", parentRaceId: "kobold_base", bonuses: { str: -4 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "小型", source: "DMG" },
+
+                // 獸人 (Orc) - Base and subraces
+                { id: "orc_base", name: "獸人", parentRaceId: null, bonuses: { str: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "orc_vgm", name: "VGM", parentRaceId: "orc_base", bonuses: { con: 1, int: -2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "orc_dmg", name: "DMG", parentRaceId: "orc_base", bonuses: { int: -2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 矮人 (Dwarf) - Base and subraces
+                { id: "dwarf_base", name: "矮人", parentRaceId: null, bonuses: { con: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+                { id: "dwarf_hill", name: "丘陵", parentRaceId: "dwarf_base", bonuses: { wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+                { id: "dwarf_gray", name: "灰", parentRaceId: "dwarf_base", bonuses: { str: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" },
+                { id: "dwarf_mountain", name: "高山", parentRaceId: "dwarf_base", bonuses: { str: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+
+                // 石盲蠻族 (Grimlock) - Monster race, no subraces
+                { id: "grimlock_dmg", name: "石盲蠻族 (DMG)", parentRaceId: null, bonuses: { str: 2, cha: -2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 米諾陶 (Minotaur) - No subraces
+                { id: "minotaur", name: "米諾陶", parentRaceId: null, bonuses: { str: 2, con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "GGR" },
+
+                // 精靈 (Elf) - Base Elf and its subraces
+                { id: "elf_base", name: "精靈", parentRaceId: null, bonuses: { dex: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+                { id: "elf_drow", name: "卓爾", parentRaceId: "elf_base", bonuses: { cha: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+                { id: "elf_shadar_kai", name: "影靈", parentRaceId: "elf_base", bonuses: { con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" },
+                { id: "elf_wood", name: "木", parentRaceId: "elf_base", bonuses: { wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+                { id: "elf_sea", name: "海", parentRaceId: "elf_base", bonuses: { con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" },
+                { id: "elf_eladrin_dmg", name: "雅靈 (DMG)", parentRaceId: "elf_base", bonuses: { int: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+                { id: "elf_eladrin_mtf", name: "雅靈 (MTF)", parentRaceId: "elf_base", bonuses: { cha: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "MTF" },
+                { id: "elf_high", name: "高等", parentRaceId: "elf_base", bonuses: { int: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB" },
+
+                // 純血蛇人 (Yuan-ti Pureblood) - No subraces
+                { id: "yuan_ti_pureblood", name: "純血蛇人", parentRaceId: null, bonuses: { int: 1, cha: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+
+                // 維多肯 (Vedalken) - No subraces
+                { id: "vedalken", name: "維多肯", parentRaceId: null, bonuses: { int: 2, wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "GGR" },
+
+                // 蜥蜴人 (Lizardfolk) - Base and subraces (excluding the monster entry)
+                { id: "lizardfolk_base", name: "蜥蜴人", parentRaceId: null, bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "lizardfolk_vgm", name: "VGM", parentRaceId: "lizardfolk_base", bonuses: { con: 2, wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "lizardfolk_dmg", name: "DMG", parentRaceId: "lizardfolk_base", bonuses: { str: 2, int: -2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 象族 (Loxodon) - No subraces
+                { id: "loxodon", name: "象族", parentRaceId: null, bonuses: { con: 2, wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "GGR" },
+
+                // 豺狼人 (Gnoll) - Monster race, no subraces
+                { id: "gnoll_dmg", name: "豺狼人 (DMG)", parentRaceId: null, bonuses: { str: 2, int: -2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 費爾伯格 (Firbolg) - No subraces
+                { id: "firbolg", name: "費爾伯格", parentRaceId: null, bonuses: { str: 1, wis: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+
+                // 阿斯莫 (Aasimar) - Base and subraces
+                { id: "aasimar_base", name: "阿斯莫", parentRaceId: null, bonuses: { cha: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "aasimar_fallen", name: "墮落", parentRaceId: "aasimar_base", bonuses: { str: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "aasimar_scourge", name: "天譴", parentRaceId: "aasimar_base", bonuses: { con: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+                { id: "aasimar_protector", name: "守護者", parentRaceId: "aasimar_base", bonuses: { wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "VGM" },
+
+                // 阿蘭寇拉鷹人 (Aarakocra) - Base and subraces
+                { id: "aarakocra_base", name: "阿蘭寇拉鷹人", parentRaceId: null, bonuses: { dex: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "EEPC" },
+                { id: "aarakocra_eepc", name: "EEPC", parentRaceId: "aarakocra_base", bonuses: { wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "EEPC" },
+                { id: "aarakocra_dmg", name: "DMG", parentRaceId: "aarakocra_base", bonuses: { wis: 2 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 骷髏 (Skeleton) - Monster race, no subraces
+                { id: "skeleton_dmg", name: "骷髏 (DMG)", parentRaceId: null, bonuses: { dex: 2, int: -4, cha: -4 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "DMG" },
+
+                // 龍裔 (Dragonborn) - Base has fixed, subraces have breath weapon details.
+                {
+                    id: "dragonborn", name: "龍裔", parentRaceId: null, bonuses: { str: 2, cha: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "PHB",
+                    subraces: [
+                        { id: "dragonborn_black", name: "黑龍", damageType: "酸蝕", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { id: "dragonborn_blue", name: "藍龍", damageType: "閃電", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { id: "dragonborn_brass", name: "黃銅龍", damageType: "火焰", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { id: "dragonborn_bronze", name: "青銅龍", damageType: "閃電", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { id: "dragonborn_copper", name: "赤銅龍", damageType: "酸蝕", breathWeapon: "5x30呎直線 (敏捷豁免)" },
+                        { id: "dragonborn_gold", name: "金龍", damageType: "火焰", breathWeapon: "15呎錐形 (敏捷豁免)" },
+                        { id: "dragonborn_green", name: "綠龍", damageType: "毒素", breathWeapon: "15呎錐形 (體質豁免)" },
+                        { id: "dragonborn_red", name: "紅龍", damageType: "火焰", breathWeapon: "15呎錐形 (敏捷豁免)" },
+                        { id: "dragonborn_silver", name: "銀龍", damageType: "寒冷", breathWeapon: "15呎錐形 (體質豁免)" },
+                        { id: "dragonborn_white", name: "白龍", damageType: "寒冷", breathWeapon: "15呎錐形 (體質豁免)" }
+                    ]
+                },
+
+                // 龜人 (Tortle) - No subraces
+                { id: "tortle", name: "龜人", parentRaceId: null, bonuses: { str: 2, wis: 1 }, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "TTP" },
+
+                // Custom Race
+                { id: "custom_race", name: "自訂", parentRaceId: null, bonuses: {}, flexibleBonuses: 0, flexibleBonusType: null, skillBonus: 0, featBonus: 0, size: "中型", source: "Custom" }
+            ];
+
+            // Function to build the 'races' array for the dropdown based on `allRacesData`
+            function buildRacesForDropdown(allRacesData) {
+                const topLevelRaces = [];
+                const subraceMap = new Map(); // Map parentId to array of subrace objects
+
+                // First, identify all parent-child relationships and store them
+                allRacesData.forEach(race => {
+                    if (race.parentRaceId) {
+                        if (!subraceMap.has(race.parentRaceId)) {
+                            subraceMap.set(race.parentRaceId, []);
+                        }
+                        subraceMap.get(race.parentRaceId).push({ name: race.name, id: race.id });
+                    }
+                });
+
+                // Now, build the top-level race objects for the dropdown
+                allRacesData.filter(r => r.parentRaceId === null).forEach(race => {
+                    const dropdownRace = {
+                        name: race.name,
+                        id: race.id,
+                        subraces: []
+                    };
+
+                    // If this race has subraces defined directly (like Dragonborn)
+                    if (race.subraces && race.subraces.length > 0) {
+                        dropdownRace.subraces = race.subraces.map(sr => ({ name: sr.name, id: sr.id }));
+                    }
+                    // If this race is a parent to other races via parentRaceId
+                    else if (subraceMap.has(race.id)) {
+                        dropdownRace.subraces = subraceMap.get(race.id);
+                    }
+                    topLevelRaces.push(dropdownRace);
+                });
+
+                return topLevelRaces;
+            }
+
+            const racesForDropdown = buildRacesForDropdown(allRacesData);
+
+
+            const classes = [
+                "野蠻人", "吟遊詩人", "牧師", "德魯伊",
+                "戰士", "武僧", "聖騎士", "遊俠", 
+                "遊蕩者", "術士", "邪術師", "法師",
+                "奇械師", 
+                "自訂" // Custom option for class
+            ];
+
+            const alignments = [
+                "守序善良", "中立善良", "混亂善良",
+                "守序中立", "絕對中立", "混亂中立",
+                "守序邪惡", "中立邪惡", "混亂邪惡"
+            ];
+
+            const backgrounds = [
+                // 以下背景來自您提供的網站連結 (D&D 5e 玩家手冊核心背景)
+                "侍僧", "騙徒", "罪犯", "藝人",
+                "民間英雄", "行會工匠", "隱士",
+                "貴族", "野外生存者", "賢者",
+                "士兵", "街頭流浪兒",
+                // 以下為額外補充的常見背景 (非來自特定連結，但為D&D社群常見翻譯)
+                "學徒", "偵探", "海員", "間諜",
+                // 新增的背景
+                "噩夢纏身", // Haunted One
+                "調查員",   // Investigator
+                "自訂" // Custom option for background
+            ];
+
+            // Hardcoded list of common PHB feats
+            const feats = [
+                "警覺", // Alert
+                "運動員", // Athlete
+                "演員", // Actor
+                "酒館鬥士", // Tavern Brawler
+                "神射手", // Sharpshooter
+                "巨武器大師", // Great Weapon Master
+                "盾牌大師", // Shield Master
+                "堅韌", // Tough
+                "戰鬥施法", // War Caster
+                "元素適應者", // Elemental Adept
+                "幸運", // Lucky
+                "魔法學徒", // Magic Initiate
+                "移動施法", // Mobile
+                "觀察者", // Observant
+                "熟練者", // Skilled
+                "專家", // Expert
+                "送葬者", // Sentinel
+                "雙武器戰鬥者", // Dual Wielder
+                "野性專長", // Charger
+                "重甲大師", // Heavy Armor Master
+                "輕甲大師", // Lightly Armored
+                "中甲大師", // Moderately Armored
+                "護甲熟練", // Armor Proficiency
+                "武器熟練", // Weapon Proficiency
+                "工具熟練", // Tool Proficiency
+                "語言學家", // Linguist
+                "醫師", // Healer
+                "鼓舞人心", // Inspiring Leader
+                "法術狙擊手", // Spell Sniper
+                "堅定不移", // Resilient
+                "製造者", // Crafter
+                "自訂" // Custom option for feat
+            ];
+
+
+            const standardArrayValues = [15, 14, 13, 12, 10, 8];
+            let attributeGenerationMethod = 'standard'; // 'standard' or 'roll'
+            let rolledAttributeValues = []; // Stores the 6 values generated by 4d6dl1
+
+            // Attributes for Half-Elf bonus (all except Charisma)
+            const halfElfBonusAttributes = [
+                { key: 'str', name: '力量 (STR)' },
+                { key: 'dex', name: '敏捷 (DEX)' },
+                { key: 'con', name: '體質 (CON)' },
+                { key: 'int', name: '智力 (INT)' },
+                { key: 'wis', name: '感知 (WIS)' }
+            ];
+
+            // All D&D 5e Skills with their governing attributes
+            const allSkills = [
+                { key: 'athletics', name: '運動', attribute: 'str' },
+                { key: 'acrobatics', name: '技巧', attribute: 'dex' },
+                { key: 'sleightOfHand', name: '巧手', attribute: 'dex' },
+                { key: 'stealth', name: '隱匿', attribute: 'dex' },
+                { key: 'arcana', name: '奧秘', attribute: 'int' },
+                { key: 'history', name: '歷史', attribute: 'int' },
+                { key: 'investigation', name: '調查', attribute: 'int' },
+                { key: 'nature', name: '自然', attribute: 'int' },
+                { key: 'religion', name: '宗教', attribute: 'int' },
+                { key: 'animalHandling', name: '動物處理', attribute: 'wis' },
+                { key: 'insight', name: '洞察', attribute: 'wis' },
+                { key: 'medicine', name: '醫藥', attribute: 'wis' },
+                { key: 'perception', name: '察覺', attribute: 'wis' },
+                { key: 'survival', name: '生存', attribute: 'wis' },
+                { key: 'deception', name: '欺瞞', attribute: 'cha' },
+                { key: 'intimidation', name: '威嚇', attribute: 'cha' },
+                { key: 'performance', name: '表演', attribute: 'cha' },
+                { key: 'persuasion', name: '說服', attribute: 'cha' }
+            ];
+
+            // Mapping of backgrounds to the skills they grant proficiency in
+            const backgroundProficienciesMap = {
+                "侍僧": ["insight", "religion"],
+                "騙徒": ["deception", "sleightOfHand"],
+                "罪犯": ["deception", "stealth"],
+                "藝人": ["acrobatics", "performance"],
+                "民間英雄": ["animalHandling", "survival"],
+                "行會工匠": ["insight", "persuasion"],
+                "隱士": ["medicine", "religion"],
+                "貴族": ["history", "persuasion"],
+                "野外生存者": ["athletics", "survival"],
+                "賢者": ["arcana", "history"],
+                "士兵": ["athletics", "intimidation"],
+                "街頭流浪兒": ["sleightOfHand", "stealth"],
+                // 額外補充背景的技能熟練項
+                "學徒": ["arcana", "history"], 
+                "偵探": ["investigation", "insight"], 
+                "海員": ["athletics", "perception"], 
+                "間諜": ["deception", "stealth"], 
+                // 新增背景的技能熟練項
+                "噩夢纏身": ["investigation", "survival"], // Haunted One
+                "調查員": ["investigation", "insight"],   // Investigator
+                "自訂": [] // Custom background grants no default proficiencies
+            };
+
+            // Data for background characteristics display
+            const backgroundCharacteristicsData = {
+                "侍僧": {
+                    features: "庇護 (Shelter of the Faithful): 你和你的冒險夥伴可以在任何屬於你信仰的寺廟或聖殿中免費獲得治療和低級服務。你的人脈可能也會在這些地方提供額外的幫助。",
+                    equipment: "一個信仰的聖徽、祈禱書或祈禱輪、5支香、祭袍、一套普通衣物、一個小袋子（內含15金幣）。"
+                },
+                "騙徒": {
+                    features: "假身份 (False Identity): 你有一個官方記錄的第二身份，包括相關的文件、熟人以及你用於維持這個身份的偽裝。你可以用這個身份來逃避過去的生活，或者在新的地方開始新的生活。",
+                    equipment: "一套深色普通衣物、一個腰包（內含15金幣）。"
+                },
+                "罪犯": {
+                    features: "罪犯人脈 (Criminal Contact): 你在犯罪地下世界中有人脈，可以通過他們傳遞訊息或購買非法物品。你還知道當地犯罪組織的運作方式。",
+                    equipment: "一套深色普通衣物、一個腰包（內含15金幣）。"
+                },
+                "藝人": {
+                    features: "受歡迎 (By Popular Demand): 你總能找到一個觀眾，無論是在貴族的大廳還是在貧民窟的骯髒小酒館。你可以在表演後獲得免費的住宿和食物，並在當地社區中獲得一些影響力。",
+                    equipment: "一種樂器、你最喜歡的表演服裝、一個愛慕者的青睞物、一個腰包（內含15金幣）。"
+                },
+                "民間英雄": {
+                    features: "農民的熱情 (Rustic Hospitality): 普通人會把你視為他們中的一員，並為你提供食物、住所和隱藏的地方。他們可能會幫助你，即使這會讓他們自己陷入危險。",
+                    equipment: "一個鏟子、一個鐵鍋、一套普通衣物、一個腰包（內含10金幣）。"
+                },
+                "行會工匠": {
+                    features: "行會會員 (Guild Membership): 你是行會的一員，可以利用行會的人脈和設施。行會成員會互相幫助，你可以在任何有行會分會的城鎮找到工作和住宿。",
+                    equipment: "一套工具（與你的工藝相關）、一套旅行衣物、一個腰包（內含15金幣）。"
+                },
+                "隱士": {
+                    features: "發現秘密 (Discovery): 你在隱居期間發現了一個獨特的秘密或知識。這個秘密可能是關於宇宙、神祇、怪物或魔法物品的。地城主將決定這個秘密的性質。",
+                    equipment: "一個捲軸匣（內含你的研究筆記）、一個冬用斗篷、一套普通衣物、草藥包、一個腰包（內含5金幣）。"
+                },
+                "貴族": {
+                    features: "貴族特權 (Position of Privilege): 由於你的高貴出身，人們會傾向於相信你，並給你提供優待。你可以在貴族圈子裡自由出入，並獲得他們的幫助。",
+                    equipment: "一套精美衣物、一枚家族印章戒指、一卷家譜、一個錢袋（內含25金幣）。"
+                },
+                "野外生存者": {
+                    features: "地圖製作師 (Wanderer): 你對野外非常熟悉，可以輕鬆地找到食物和飲用水。你還能記住你曾經走過的地圖和地形。",
+                    equipment: "一個旅行者服裝、一個地圖、一個腰包（內含10金幣）。"
+                },
+                "賢者": {
+                    features: "研究員 (Researcher): 當你試圖回憶或發現某個知識片段時，如果你不知道，你通常知道在哪裡可以找到它：在一所圖書館、一個賢者，或者一個神秘的古卷中。",
+                    equipment: "一個墨水瓶、一支鵝毛筆、一本學習筆記、一套普通衣物、一個腰包（內含10金幣）。"
+                },
+                "士兵": {
+                    features: "軍階 (Military Rank): 你在軍隊中有一個軍階，這會給你帶來一些權威和影響力。你可以命令比你低階的士兵，並在軍事設施中獲得幫助。",
+                    equipment: "一套軍服、一個軍隊徽章、一個戰利品（例如：敵人的匕首）、一個腰包（內含10金幣）。"
+                },
+                "街頭流浪兒": {
+                    features: "城市秘密 (City Secrets): 你知道城市中的秘密通道、守衛的盲點以及地下市場。你可以在城市中找到隱藏的地方，並知道如何避開麻煩。",
+                    equipment: "一套普通衣物、一個小刀、一個腰包（內含10金幣）。"
+                },
+                "學徒": {
+                    features: "學徒生涯 (Apprentice Life): 你在某個領域有過學徒經驗，這讓你對該領域的基礎知識和實踐有一定了解。你可能還與你的導師或同行保持聯繫。",
+                    equipment: "一套普通衣物、一支鵝毛筆、一個墨水瓶、一本筆記本、一個腰包（內含5金幣）。"
+                },
+                "偵探": {
+                    features: "線索追蹤 (Clue Finder): 你擅長發現和解讀線索，無論是犯罪現場還是複雜的謎題。你的敏銳觀察力總能幫助你找到別人忽略的細節。",
+                    equipment: "一套普通衣物、一個放大鏡、一本筆記本、一支鵝毛筆、一個腰包（內含10金幣）。"
+                },
+                "海員": {
+                    features: "水手通道 (Ship's Passage): 你可以免費在任何願意搭載你的船隻上找到通道。你還知道航海路線和港口的信息。",
+                    equipment: "一套普通衣物、一個小刀、一個腰包（內含10金幣）。"
+                },
+                "間諜": {
+                    features: "情報網絡 (Spy Network): 你在一個情報網絡中有人脈，可以通過他們獲取信息或傳遞消息。你擅長偽裝和滲透。",
+                    equipment: "一套深色普通衣物、一套偽裝工具、一個腰包（內含15金幣）。"
+                },
+                "噩夢纏身": { // Haunted One
+                    features: "陰影庇護 (Shelter from the Storm): 你的過去讓你對某些危險有特殊的直覺，並且能夠找到隱蔽的地方。你還可能吸引一些對你的過去感興趣的實體。",
+                    equipment: "一件破舊的斗篷、一本佈滿奇怪符號的日記、一個小袋子（內含10金幣）。"
+                },
+                "調查員": { // Investigator
+                    features: "城市之眼 (Eye for Detail): 你對城市中的細節有著非凡的觀察力，能夠注意到微小的線索和異常。你擅長追蹤和推理。",
+                    equipment: "一個放大鏡、一本筆記本、一支鵝毛筆、一套普通衣物、一個腰包（內含15金幣）。"
+                },
+                "自訂": {
+                    features: "自訂背景特性將由地城主決定。",
+                    equipment: "自訂起始裝備。"
+                }
+            };
+
+
+            // Defines how many skills each class can choose (count) and which skills are options (options)
+            const classSkillProficiencies = {
+                "野蠻人": { count: 2, options: ["animalHandling", "athletics", "intimidation", "nature", "perception", "survival"] },
+                "吟遊詩人": { count: 3, options: allSkills.map(s => s.key) }, // Any 3 skills
+                "牧師": { count: 2, options: ["insight", "medicine", "persuasion", "religion"] }, 
+                "德魯伊": { count: 2, options: ["animalHandling", "insight", "medicine", "nature", "perception", "religion", "survival"] }, 
+                "戰士": { count: 2, options: ["acrobatics", "animalHandling", "athletics", "history", "insight", "intimidation", "perception", "survival"] },
+                "武僧": { count: 2, options: ["acrobatics", "athletics", "history", "insight", "religion", "stealth"] },
+                "聖騎士": { count: 2, options: ["athletics", "insight", "intimidation", "medicine", "persuasion", "religion"] }, 
+                "遊俠": { count: 3, options: ["animalHandling", "athletics", "insight", "investigation", "nature", "perception", "stealth", "survival"] },
+                "遊蕩者": { count: 4, options: ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "performance", "persuasion", "sleightOfHand", "stealth"] },
+                "術士": { count: 2, options: ["arcana", "deception", "insight", "intimidation", "persuasion", "religion"] },
+                "邪術師": { count: 2, options: ["arcana", "deception", "history", "intimidation", "investigation", "nature", "religion"] },
+                "法師": { count: 2, options: ["arcana", "history", "insight", "investigation", "medicine", "religion"] },
+                "奇械師": { count: 2, options: ["arcana", "history", "investigation", "medicine", "nature", "perception", "sleightOfHand"] }, 
+                "自訂": { count: 2, options: allSkills.map(s => s.key) } // Default for custom
+            };
+
+            const generalEasterEggMessages = [
+                "一個新的傳奇即將誕生！",
+                "願您的骰子永遠是20點！",
+                "小心地城中的史萊姆，它們比你想像的更黏！",
+                "聽說遠方有龍的低語…",
+                "您的冒險，從此刻開始！",
+                "別忘了帶上10呎的桿子！",
+                "有時候，最棒的寶藏是友誼…和金幣。",
+                "你感覺到一股微風，耳邊似乎傳來了某個熟悉的聲音…『這是個陷阱！』",
+                "當心那些會說話的寶箱！",
+                "你的角色被一個神秘的鴨子注視著…",
+                "你成功地避開了所有稅務！恭喜！",
+                "小心，地城主正在磨他的牙齒！",
+                "你發現了一枚閃閃發光的硬幣，上面刻著…你的臉？",
+                "別忘了你的角色有時會需要休息！",
+                "你的角色在創造過程中打了個哈欠。真是個有潛力的冒險者！",
+                "你感覺到一股強烈的預感，今晚的晚餐會有派！",
+                "一個小精靈從螢幕裡跳了出來，對你眨了眨眼，然後又消失了。",
+                "你聽到了遠處傳來一陣微弱的歌聲，似乎在讚美你的角色！",
+                "你找到了一雙隱形襪子，但你卻找不到它們！",
+                "你的角色在夢中學會了如何騎乘獨角獸，雖然那只獨角獸是充氣的。",
+                "你感覺到一股強烈的衝動，想把所有東西都塗成紫色。",
+                "小心，你的角色可能會不小心掉進一個充滿地精的兔子洞！"
+            ];
+
+            const raceClassEasterEggs = {
+                "人類-戰士": "標準組合，但別小看它的潛力！",
+                "精靈-遊蕩者": "敏捷的身手，加上精靈的優雅，完美的組合！",
+                "矮人-牧師": "堅韌的信仰，矮人牧師是隊伍的堅實後盾！",
+                "半精靈-吟遊詩人": "天生的魅力，半精靈吟遊詩人將用歌聲征服世界！",
+                "提夫林-邪術師": "與惡魔的契約，這將是一段充滿誘惑與力量的旅程！",
+                "侏儒-奇械師": "小小的身軀，卻蘊藏著無限的發明創造力！",
+                "龍裔-野蠻人": "狂暴的龍血，讓你的怒火燃燒吧！",
+                "半獸人-戰士": "強大的力量與堅韌的意志，戰場上的猛獸！",
+                "半身人-遊蕩者": "小巧的身軀與靈活的技巧，是潛入與偷竊的專家！",
+                "精靈-法師": "經典的奧術施法者，願你的咒語永不失誤！",
+                "人類-牧師": "信仰的傳播者，你的神明將引導你前行！",
+                "矮人-戰士": "堅韌不拔的矮人戰士，準備好為榮譽而戰了嗎？",
+                "半身人-遊俠": "森林中的追蹤者，沒有什麼能逃過你的眼睛！",
+                "地精-遊蕩者": "小巧而狡猾，地精遊蕩者總能找到最佳的藏身之處！",
+                "龍裔-聖騎士": "龍血的聖騎士，你的誓言將如龍吼般響亮！", 
+                "提夫林-術士": "惡魔血脈的術士，駕馭你內心的力量吧！",
+                "半獸人-野蠻人": "狂野的戰鬥者，讓你的怒吼震徹整個戰場！",
+                "侏儒-德魯伊": "熱愛自然的侏儒，與森林中的生靈共舞！",
+                "肯庫-武僧": "模仿大師的武術家，你的招式將變幻莫測！",
+                "蜥蜴人-德魯伊": "冷靜的自然守護者，沼澤是你的家園！",
+                "獸人-野蠻人": "強大的狂戰士，你的斧頭將無堅不摧！",
+                "斑貓人-吟遊詩人": "喜歡故事和旅行的吟遊詩人，用歌聲點亮每個營火！",
+                "鳥人-遊俠": "天空中的守護者，從高空俯瞰你的獵物！",
+                "妖精-術士": "魔法天賦的妖精，你的魔法充滿了奇幻與驚喜！",
+                "哥布林-遊蕩者": "狡猾的哥布林，沒有你打不開的鎖，只有你不想開的！",
+                "狗頭人-法師": "聰明的狗頭人，別小看任何一個會施法的狗頭人！",
+                "人類-吟遊詩人": "萬能的說書人，你的故事將傳遍大陸！",
+                "精靈-德魯伊": "與森林共鳴的古老靈魂，精靈德魯伊是自然的化身。",
+                "矮人-遊蕩者": "矮人中的異類？但他們開鎖的手藝可不輸任何人！",
+                "半身人-牧師": "小小的身軀，大大的信仰，半身人牧師的祝福溫暖人心。",
+                "地精-法師": "誰說地精不能施法？他們的咒語可能有點…爆炸性。",
+                "龍裔-吟遊詩人": "龍的歌聲，既能激勵人心，也能震懾敵人！",
+                "提夫林-牧師": "即使身負惡魔血脈，也能選擇侍奉光明，這需要多大的勇氣！",
+                "半獸人-聖騎士": "用強大的力量捍衛正義，半獸人聖騎士是正義的化身。", 
+                "侏儒-遊蕩者": "小巧的身軀讓他們成為完美的間諜和盜賊！",
+                "肯庫-德魯伊": "在森林中尋找自我，肯庫德魯伊的自然之道充滿奧秘。",
+                "蜥蜴人-戰士": "冷血的戰士，他們的戰鬥方式直接而致命！",
+                "獸人-牧師": "即使是獸人，也能找到信仰，並為部落帶來神聖的力量。",
+                "斑貓人-牧師": "貓神的祝福，斑貓人牧師的治療術輕柔而有效！",
+                "鳥人-術士": "天生擁有魔法血脈的鳥人，他們的咒語如同風暴般強大！",
+                "妖精-聖騎士": "以純真之心捍衛誓言，妖精聖騎士是光明與歡樂的使者！", 
+                "哥布林-牧師": "即使是哥布林，也能找到信仰，並為他們的部落帶來微薄的神聖力量！",
+                "狗頭人-吟遊詩人": "用蹩腳的歌聲和滑稽的表演來取悅他們的龍主，狗頭人吟遊詩人充滿了喜劇色彩！",
+                // 新增的種族職業彩蛋
+                "精靈-聖騎士": "高貴的誓言，精靈聖騎士的聖光將照亮黑暗！", 
+                "矮人-遊俠": "在山脈中追蹤獵物，矮人遊俠是堅韌的探險家！",
+                "半身人-德魯伊": "與自然親近的小小守護者，半身人德魯伊的魔法充滿生機！",
+                "地精-邪術師": "與古怪的實體簽訂契約，地精邪術師的魔法總是出乎意料！",
+                "龍裔-法師": "龍的智慧與奧術的結合，龍裔法師的咒語將震撼人心！",
+                "提夫林-吟遊詩人": "用魅惑的歌聲掩蓋惡魔的血脈，提夫林吟遊詩人是天生的說服者！",
+                "半獸人-武僧": "將狂暴的力量轉化為精準的武術，半獸人武僧是戰鬥的藝術家！",
+                "侏儒-術士": "侏儒的魔法天賦，加上天生的魅力，術士之路充滿驚喜！",
+                "肯庫-戰士": "模仿強大戰士的技巧，肯庫戰士在戰場上學習成長！",
+                "蜥蜴人-遊蕩者": "冷靜而隱秘的獵手，蜥蜴人遊蕩者在沼澤中無聲無息！",
+                "獸人-法師": "打破刻板印象的獸人，他們的奧術力量不容小覷！",
+                "斑貓人-牧師": "貓神的祝福，斑貓人牧師的治療術輕柔而有效！",
+                "鳥人-術士": "天生擁有魔法血脈的鳥人，他們的咒語如同風暴般強大！",
+                "妖精-聖騎士": "以純真之心捍衛誓言，妖精聖騎士是光明與歡樂的使者！", 
+                "哥布林-牧師": "即使是哥布林，也能找到信仰，並為他們的部落帶來微薄的神聖力量！",
+                "狗頭人-吟遊詩人": "用蹩腳的歌聲和滑稽的表演來取悅他們的龍主，狗頭人吟遊詩人充滿了喜劇色彩！",
+            };
+
+            // Player Name Easter Eggs (now checks playerNameInput)
+            const playerNameEasterEggs = {
+                "冰凌": "雖然我們已經有個冰凌了，但相信她不介意有更多個...應該啦",
+                "冰0": "雖然我們已經有個冰凌了，但相信她不介意有更多個...應該啦",
+                "哥布林殺手": "你對哥布林的仇恨，將成為你冒險的動力！",
+                "傑洛特": "嗯，你聞起來像個怪物殺手，還有點…丁香和醋味？",
+                "卓爾精靈": "小心陽光！以及那些不信任卓爾的人。",
+                "我的城鎮被鴨子燒毀了": "鴨子？這可真是個不尋常的悲劇。復仇的火焰在你的心中燃燒！",
+                "我要成為一個龍廚師": "這是一個很有趣的職業選擇，希望你的食譜能讓龍也讚不絕口！",
+                "我是dm": "等等，你怎麼在這裡？快回去準備你的模組！",
+                // 新增的玩家名稱彩蛋
+                "冒險家": "願您的旅途充滿驚奇與寶藏！",
+                "英雄": "您的英勇事蹟將被吟遊詩人傳唱！",
+                "傳奇": "一個傳奇的誕生，世界將為之顫抖！",
+                "菜鳥": "別擔心，每個傳奇都從菜鳥開始！",
+                "老手": "歡迎回來，老冒險家，這次又想挑戰什麼？",
+                "路人甲": "即使是路人甲，也能成為故事的主角！",
+                "測試員": "感謝您的測試，希望您玩得開心！",
+                "貓貓": "一隻勇敢的貓貓踏上了冒險之旅", 
+                "樂五": "更多的樂五！他們會不會一起說好哦句點我們？", 
+                "樂5": "更多的樂五！他們會不會一起說好哦句點我們？", 
+                "月餅": "我的太極圖勒!?" 
+            };
+
+
+            // --- Helper Functions ---
+            function getRandomElement(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // Populates a select element with options.
+            // optionsArray can be an array of strings or objects { name: "Display", id: "value" }
+            function populateDropdown(selectElement, optionsArray, defaultValue = "") {
+                const currentSelectedValue = selectElement.value; // Store current value
+                selectElement.innerHTML = `<option value="">請選擇</option>`; // Always start with default
+                let valueFound = false;
+
+                optionsArray.forEach(option => {
+                    const opt = document.createElement('option');
+                    let optionValue, optionText;
+                    if (typeof option === 'object' && option.name && option.id) {
+                        optionValue = option.id;
+                        optionText = option.name;
+                    } else if (typeof option === 'object' && option.key && option.name) { // For attribute bonus selects
+                        optionValue = option.key;
+                        optionText = option.name;
+                    } else { // For simple string options
+                        optionValue = option;
+                        optionText = option;
+                    }
+                    opt.value = optionValue;
+                    opt.textContent = optionText;
+                    selectElement.appendChild(opt);
+                    if (optionValue === defaultValue) {
+                        valueFound = true;
+                    }
+                });
+
+                // Set the selected value back if it's still a valid option or if a defaultValue was provided and found
+                if (valueFound) {
+                    selectElement.value = defaultValue;
+                } else if (currentSelectedValue && optionsArray.some(opt => {
+                    const optVal = typeof opt === 'object' ? (opt.id || opt.key) : opt;
+                    return optVal === currentSelectedValue;
+                })) {
+                    // If the previously selected value is still in the new options, re-select it
+                    selectElement.value = currentSelectedValue;
+                } else {
+                    selectElement.value = ""; // Otherwise, reset to "請選擇"
+                }
+            }
+
+            function getAttributeModifier(score) {
+                return Math.floor((score - 10) / 2);
+            }
+
+            // --- Attribute Assignment Logic (Standard Array & Roll Dice) ---
+            function roll4d6dl1() {
+                let rolls = [];
+                for (let i = 0; i < 4; i++) {
+                    rolls.push(Math.floor(Math.random() * 6) + 1);
+                }
+                rolls.sort((a, b) => a - b); // Sort ascending
+                return rolls[1] + rolls[2] + rolls[3]; // Sum top 3
+            }
+
+            function resetAttributeAssignmentUI() {
+                // Clear all attribute input fields
+                for (const attrKey in attributeInputs) {
+                    attributeInputs[attrKey].value = '';
+                }
+
+                if (attributeGenerationMethod === 'standard') {
+                    attributeMethodDescription.textContent = '請將以下數值填入各項屬性框中:';
+                    attributeMethodValuesDisplay.textContent = `[${standardArrayValues.join(', ')}]`;
+                    rollDiceAttributeSection.classList.add('hidden');
+                } else { // 'roll'
+                    attributeMethodDescription.textContent = '請投擲骰子，然後將投擲出的數值填入各項屬性框中:';
+                    attributeMethodValuesDisplay.textContent = '請先投擲骰子';
+                    rollDiceAttributeSection.classList.remove('hidden');
+                    rolledAttributeValues = []; // Clear previous rolls
+                }
+            }
+
+            // Event listeners for attribute method selection
+            attributeMethodRadios.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    attributeGenerationMethod = event.target.value;
+                    resetAttributeAssignmentUI();
+                });
+            });
+
+            // Event listener for "Roll Attribute Dice" button
+            rollAttributeDiceBtn.addEventListener('click', () => {
+                rolledAttributeValues = [];
+                for (let i = 0; i < 6; i++) {
+                    rolledAttributeValues.push(roll4d6dl1());
+                }
+                rolledAttributeValues.sort((a, b) => b - a); // Sort for display (descending)
+                attributeMethodValuesDisplay.textContent = `[${rolledAttributeValues.join(', ')}]`;
+                
+                // Automatically fill attribute input fields with rolled values
+                const attributeKeys = Object.keys(attributeInputs);
+                for (let i = 0; i < attributeKeys.length; i++) {
+                    const attrKey = attributeKeys[i];
+                    attributeInputs[attrKey].value = rolledAttributeValues[i];
+                }
+            });
+
+            // --- Half-Elf Bonus Logic ---
+            function updateHalfElfBonusDropdowns() {
+                // Filter out CHA from options for the +1 bonuses
+                const nonChaAttributes = allAttributesForBonus.filter(attr => attr.key !== 'cha');
+
+                const selectedBonus1 = halfElfBonus1Select.value;
+                const selectedBonus2 = halfElfBonus2Select.value;
+
+                // Options for bonus 1: all non-CHA attributes, excluding selected bonus 2
+                const optionsForBonus1 = nonChaAttributes.filter(attr => attr.key !== selectedBonus2);
+                // Options for bonus 2: all non-CHA attributes, excluding selected bonus 1
+                const optionsForBonus2 = nonChaAttributes.filter(attr => attr.key !== selectedBonus1);
+
+                populateDropdown(halfElfBonus1Select, optionsForBonus1, selectedBonus1);
+                populateDropdown(halfElfBonus2Select, optionsForBonus2, selectedBonus2);
+            }
+
+            halfElfBonus1Select.addEventListener('change', updateHalfElfBonusDropdowns);
+            halfElfBonus2Select.addEventListener('change', updateHalfElfBonusDropdowns);
+
+            // --- Human (Variant) Bonus Logic ---
+            function updateHumanVariantBonusDropdowns() {
+                const selectedBonus1 = humanVariantBonus1Select.value;
+                const selectedBonus2 = humanVariantBonus2Select.value;
+
+                // Options for bonus 1: all attributes, excluding selected bonus 2
+                const optionsForBonus1 = allAttributesForBonus.filter(attr => attr.key !== selectedBonus2);
+                // Options for bonus 2: all attributes, excluding selected bonus 1
+                const optionsForBonus2 = allAttributesForBonus.filter(attr => attr.key !== selectedBonus1);
+
+                populateDropdown(humanVariantBonus1Select, optionsForBonus1, selectedBonus1);
+                populateDropdown(humanVariantBonus2Select, optionsForBonus2, selectedBonus2);
+            }
+            humanVariantBonus1Select.addEventListener('change', updateHumanVariantBonusDropdowns);
+            humanVariantBonus2Select.addEventListener('change', updateHumanVariantBonusDropdowns);
+
+            // --- Simic Hybrid Bonus Logic ---
+            function updateSimicHybridBonusDropdown() {
+                const selectedBonus = simicHybridBonusSelect.value;
+                // Simic Hybrid gets CON+2 and one other +1. So, filter out CON from the options.
+                const nonConAttributes = allAttributesForBonus.filter(attr => attr.key !== 'con');
+                populateDropdown(simicHybridBonusSelect, nonConAttributes, selectedBonus);
+            }
+            simicHybridBonusSelect.addEventListener('change', updateSimicHybridBonusDropdown);
+
+
+            // --- Race Characteristics Display Logic ---
+            function displayRaceCharacteristics() {
+                const selectedRaceId = charRaceSelect.value;
+                const selectedSubraceId = charSubraceSelect.value;
+
+                let baseRaceData = allRacesData.find(r => r.id === selectedRaceId);
+                let subraceData = selectedSubraceId ? allRacesData.find(r => r.id === selectedSubraceId) : null;
+
+                let raceDisplayName = "";
+                let characteristicsHtml = "";
+                let combinedBonuses = {};
+                let flexibleBonusInfo = "";
+                let raceFeatInfo = "";
+                let dragonbornDetailsInfo = "";
+                let sizeInfo = "";
+                let sourceInfo = "";
+
+                if (selectedRaceId === "custom_race" && customRaceInput.value.trim()) {
+                    raceDisplayName = customRaceInput.value.trim();
+                    characteristicsHtml = `<p class="text-dark-text">自訂種族特性將由地城主決定。</p>`;
+                    raceCharacteristicsDisplay.innerHTML = characteristicsHtml;
+                    return;
+                } else if (!baseRaceData) {
+                    raceCharacteristicsDisplay.innerHTML = `<p class="text-gray-400">選定種族的特性將顯示在這裡...</p>`;
+                    return;
+                }
+
+                // Combine display name
+                raceDisplayName = baseRaceData.name;
+                if (subraceData) {
+                    raceDisplayName += ` (${subraceData.name})`;
+                }
+
+                // Combine bonuses
+                if (baseRaceData.bonuses) {
+                    Object.assign(combinedBonuses, baseRaceData.bonuses);
+                }
+                if (subraceData && subraceData.bonuses) {
+                    for (const attr in subraceData.bonuses) {
+                        combinedBonuses[attr] = (combinedBonuses[attr] || 0) + subraceData.bonuses[attr];
+                    }
+                }
+
+                // Build characteristics HTML
+                characteristicsHtml += `<h4 class="font-bold text-dark-text mb-2">${raceDisplayName} 特性:</h4>`;
+                sourceInfo = `<p><span class="font-bold text-dark-text-secondary">來源:</span> ${subraceData ? subraceData.source : baseRaceData.source}</p>`;
+                sizeInfo = `<p><span class="font-bold text-dark-text-secondary">體型:</span> ${subraceData ? subraceData.size : baseRaceData.size}</p>`;
+                characteristicsHtml += sourceInfo + sizeInfo;
+
+                let fixedBonusesHtml = [];
+                for (const attr in combinedBonuses) {
+                    const value = combinedBonuses[attr];
+                    const attrName = allAttributesForBonus.find(a => a.key === attr)?.name || attr.toUpperCase();
+                    fixedBonusesHtml.push(`${attrName} ${value > 0 ? '+' : ''}${value}`);
+                }
+                if (fixedBonusesHtml.length > 0) {
+                    characteristicsHtml += `<p><span class="font-bold text-dark-text-secondary">屬性加值:</span> ${fixedBonusesHtml.join(', ')}</p>`;
+                } else {
+                    characteristicsHtml += `<p><span class="font-bold text-dark-text-secondary">屬性加值:</span> 無</p>`;
+                }
+
+                // Flexible Bonuses (check the *effective* race for flexible bonuses, which is the subrace if selected, else base)
+                const effectiveFlexibleRaceData = subraceData || baseRaceData;
+                if (effectiveFlexibleRaceData.flexibleBonuses > 0) {
+                    if (effectiveFlexibleRaceData.flexibleBonusType === "nonCha") { // Half-Elf
+                        flexibleBonusInfo += `<p><span class="font-bold text-dark-text-secondary">額外加點:</span> 魅力+2 (已包含在屬性加值中)，並選擇兩個不同的非魅力屬性各+1。</p>`;
+                    } else if (effectiveFlexibleRaceData.flexibleBonusType === "any" && effectiveFlexibleRaceData.skillBonus === 1 && effectiveFlexibleRaceData.featBonus === 1) { // Human (Variant)
+                        flexibleBonusInfo += `<p><span class="font-bold text-dark-text-secondary">額外加點:</span> 選擇兩個不同的屬性各+1。</p>`;
+                        flexibleBonusInfo += `<p><span class="font-bold text-dark-text-secondary">額外技能:</span> 獲得一個額外技能的選擇。</p>`;
+                        flexibleBonusInfo += `<p><span class="font-bold text-dark-text-secondary">專長:</span> 獲得一個額外專長。請在上方「專長」欄位中輸入您選擇的專長名稱。</p>`;
+                    } else if (effectiveFlexibleRaceData.id === "simic_hybrid") { // Simic Hybrid
+                        flexibleBonusInfo += `<p><span class="font-bold text-dark-text-secondary">額外加點:</span> 體質+2 (已包含在屬性加值中)，並選擇一個額外屬性+1。</p>`;
+                    } else if (effectiveFlexibleRaceData.flexibleBonusType === "dexOrCha") { // Tiefling (Variant)
+                        flexibleBonusInfo += `<p><span class="font-bold text-dark-text-secondary">額外加點:</span> 智力+1 (已包含在屬性加值中)，並選擇敏捷 或 魅力+2。</p>`;
+                    }
+                }
+                characteristicsHtml += flexibleBonusInfo;
+
+
+                // Dragonborn Breath Weapon (only applies if base race is Dragonborn AND a subrace is selected)
+                if (baseRaceData.id === "dragonborn" && subraceData) {
+                    const dragonSubraceDetails = baseRaceData.subraces.find(sr => sr.id === subraceData.id);
+                    if (dragonSubraceDetails) {
+                        dragonbornDetailsInfo = `
+                            <p><span class="font-bold text-dark-text-secondary">龍種傷害類型:</span> ${dragonSubraceDetails.damageType}</p>
+                            <p><span class="font-bold text-dark-text-secondary">龍種噴吐武器:</span> ${dragonSubraceDetails.breathWeapon}</p>
+                        `;
+                    }
+                }
+                characteristicsHtml += dragonbornDetailsInfo;
+
+                raceCharacteristicsDisplay.innerHTML = characteristicsHtml;
+            }
+
+            // --- Background Characteristics Display Logic ---
+            function displayBackgroundCharacteristics() {
+                const selectedBackgroundName = charBackgroundSelect.value;
+                let backgroundInfo = backgroundCharacteristicsData[selectedBackgroundName];
+
+                let characteristicsHtml = "";
+
+                if (selectedBackgroundName === "自訂" && customBackgroundInput.value.trim()) {
+                    characteristicsHtml = `<h4 class="font-bold text-dark-text mb-2">${customBackgroundInput.value.trim()} 特性:</h4><p class="text-dark-text">自訂背景特性將由地城主決定。</p>`;
+                } else if (!backgroundInfo) {
+                    characteristicsHtml = `<p class="text-gray-400">選定背景的特性將顯示在這裡...</p>`;
+                } else {
+                    characteristicsHtml += `<h4 class="font-bold text-dark-text mb-2">${selectedBackgroundName} 特性:</h4>`;
+                    characteristicsHtml += `<p><span class="font-bold text-dark-text-secondary">特性:</span> ${backgroundInfo.features}</p>`;
+                    characteristicsHtml += `<p><span class="font-bold text-dark-text-secondary">起始裝備:</span> ${backgroundInfo.equipment}</p>`;
+                }
+                backgroundCharacteristicsDisplay.innerHTML = characteristicsHtml;
+            }
+
+
+            // --- Race/Class/Background Selection Logic (for Subraces and Custom Inputs) ---
+            charRaceSelect.addEventListener('change', () => {
+                const selectedRaceId = charRaceSelect.value;
+                const selectedRaceForDropdown = racesForDropdown.find(r => r.id === selectedRaceId); // This is the dropdown object
+                
+                // Handle Custom Race Input
+                if (selectedRaceId === "custom_race") {
+                    customRaceInputContainer.classList.remove('hidden');
+                } else {
+                    customRaceInputContainer.classList.add('hidden');
+                    customRaceInput.value = ''; // Clear custom input when not selected
+                }
+
+                // Handle Subraces
+                if (selectedRaceForDropdown && selectedRaceForDropdown.subraces && selectedRaceForDropdown.subraces.length > 0) {
+                    populateDropdown(charSubraceSelect, selectedRaceForDropdown.subraces);
+                    subraceContainer.classList.remove('hidden');
+                } else {
+                    subraceContainer.classList.add('hidden');
+                    charSubraceSelect.innerHTML = '<option value="">請選擇</option>'; // Clear subrace
+                }
+
+                // Trigger subrace change to handle bonuses for base races that have them (like Half-Elf if selected directly)
+                // and to reset bonus containers if a race without bonuses is selected.
+                charSubraceSelect.dispatchEvent(new Event('change'));
+                displayRaceCharacteristics(); // Update characteristics display
+                // Call updateSkillProficienciesBasedOnClassAndBackground to refresh skill choices
+                updateSkillProficienciesBasedOnClassAndBackground();
+            });
+
+            charSubraceSelect.addEventListener('change', () => {
+                const selectedRaceId = charRaceSelect.value;
+                const selectedSubraceId = charSubraceSelect.value;
+
+                let activeRaceData = null;
+
+                // If a subrace is selected, then the flexible bonuses are determined by that subrace's entry
+                // However, for display and bonus application, we need both base and subrace data.
+                const baseRaceData = allRacesData.find(r => r.id === selectedRaceId);
+                const subraceData = selectedSubraceId ? allRacesData.find(r => r.id === selectedSubraceId) : null;
+                
+                // The 'active' data for flexible bonuses is the subrace if chosen, otherwise the base race.
+                activeRaceData = subraceData || baseRaceData;
+
+
+                // Reset all bonus containers first
+                halfElfBonusContainer.classList.add('hidden');
+                halfElfBonus1Select.innerHTML = '<option value="">請選擇</option>';
+                halfElfBonus2Select.innerHTML = '<option value="">請選擇</option>';
+                humanVariantBonusContainer.classList.add('hidden');
+                humanVariantBonus1Select.innerHTML = '<option value="">請選擇</option>';
+                humanVariantBonus2Select.innerHTML = '<option value="">請選擇</option>';
+                simicHybridBonusContainer.classList.add('hidden');
+                simicHybridBonusSelect.innerHTML = '<option value="">請選擇</option>';
+
+
+                if (activeRaceData) {
+                    // Apply Half-Elf bonus logic
+                    if (activeRaceData.flexibleBonuses > 0 && activeRaceData.flexibleBonusType === "nonCha") {
+                        halfElfBonusContainer.classList.remove('hidden');
+                        populateDropdown(halfElfBonus1Select, allAttributesForBonus.filter(attr => attr.key !== 'cha'));
+                        populateDropdown(halfElfBonus2Select, allAttributesForBonus.filter(attr => attr.key !== 'cha'));
+                        updateHalfElfBonusDropdowns(); // This will handle the selection logic
+                    }
+
+                    // Apply Human (Variant) bonus logic
+                    // FIX: Changed effectiveFlexibleRaceData to activeRaceData
+                    if (activeRaceData.flexibleBonuses > 0 && activeRaceData.flexibleBonusType === "any" && activeRaceData.skillBonus === 1 && activeRaceData.featBonus === 1) {
+                        humanVariantBonusContainer.classList.remove('hidden');
+                        populateDropdown(humanVariantBonus1Select, allAttributesForBonus);
+                        populateDropdown(humanVariantBonus2Select, allAttributesForBonus);
+                        updateHumanVariantBonusDropdowns(); // This will handle the selection logic
+                    }
+
+                    // Apply Simic Hybrid bonus logic
+                    if (activeRaceData.id === "simic_hybrid") {
+                        simicHybridBonusContainer.classList.remove('hidden');
+                        populateDropdown(simicHybridBonusSelect, allAttributesForBonus.filter(attr => attr.key !== 'con'));
+                        updateSimicHybridBonusDropdown();
+                    }
+                }
+                displayRaceCharacteristics(); // Update characteristics display
+                updateSkillProficienciesBasedOnClassAndBackground(); // Always update skills on subrace change
+            });
+
+
+            charClassSelect.addEventListener('change', () => {
+                const selectedClassName = charClassSelect.value;
+                if (selectedClassName === "自訂") {
+                    customClassInputContainer.classList.remove('hidden');
+                } else {
+                    customClassInputContainer.classList.add('hidden');
+                    customClassInput.value = '';
+                }
+                updateSkillProficienciesBasedOnClassAndBackground();
+            });
+
+            charBackgroundSelect.addEventListener('change', () => {
+                const selectedBackgroundName = charBackgroundSelect.value;
+                if (selectedBackgroundName === "自訂") {
+                    customBackgroundInputContainer.classList.remove('hidden');
+                } else {
+                    customBackgroundInputContainer.classList.add('hidden');
+                    customBackgroundInput.value = '';
+                }
+                updateSkillProficienciesBasedOnClassAndBackground();
+                displayBackgroundCharacteristics(); // Call to update background characteristics display
+            });
+
+            // --- Skill Proficiency Logic ---
+            function updateSkillProficienciesBasedOnClassAndBackground() {
+                const selectedClass = charClassSelect.value;
+                const selectedRaceId = charRaceSelect.value;
+                const selectedSubraceId = charSubraceSelect.value;
+                const selectedBackground = charBackgroundSelect.value;
+
+                let activeRaceData = null;
+                if (selectedSubraceId) {
+                    activeRaceData = allRacesData.find(r => r.id === selectedSubraceId);
+                } else {
+                    activeRaceData = allRacesData.find(r => r.id === selectedRaceId);
+                }
+
+                // Reset all skill proficiency states
+                backgroundProficienciesSet.clear();
+                classProficiencyOptions.clear(); // Clear class-specific options
+
+                // Determine class-specific skill options and count
+                const classData = classSkillProficiencies[selectedClass] || classSkillProficiencies["自訂"];
+                classData.options.forEach(skillKey => classProficiencyOptions.add(skillKey));
+                
+                maxUserSelectableSkills = classData.count;
+
+                // Apply Human (Variant) specific skill bonus
+                if (activeRaceData && activeRaceData.skillBonus && activeRaceData.id === "human_variant") {
+                    maxUserSelectableSkills += activeRaceData.skillBonus; // Grants one additional skill choice
+                }
+
+                // Apply background-based proficiencies
+                if (selectedBackground && backgroundProficienciesMap[selectedBackground]) {
+                    const skillsFromBackground = backgroundProficienciesMap[selectedBackground];
+                    skillsFromBackground.forEach(skillKey => backgroundProficienciesSet.add(skillKey));
+                } else if (selectedBackground === "自訂") {
+                    backgroundProficienciesSet.clear();
+                }
+
+                renderSkillProficiencies();
+            }
+
+            function renderSkillProficiencies() {
+                skillProficiencyContainer.innerHTML = '';
+                allSkills.forEach(skill => {
+                    const div = document.createElement('div');
+                    div.className = 'skill-checkbox-container';
+
+                    const isBackgroundProficient = backgroundProficienciesSet.has(skill.key);
+                    const isClassOption = classProficiencyOptions.has(skill.key);
+
+                    // A skill is disabled if it's granted by background OR if it's not an option for the current class
+                    const isDisabled = isBackgroundProficient || !isClassOption;
+                    // A skill is pre-checked only if it's granted by background
+                    const isChecked = isBackgroundProficient;
+
+                    div.innerHTML = `
+                        <input type="checkbox" id="skill-${skill.key}" data-skill-key="${skill.key}"
+                               ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+                        <label for="skill-${skill.key}">${skill.name} (${skill.attribute.toUpperCase()})</label>
+                    `;
+                    skillProficiencyContainer.appendChild(div);
+                });
+
+                // Add event listeners to newly created checkboxes
+                skillProficiencyContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.addEventListener('change', handleSkillCheckboxChange);
+                });
+                updateSkillProficiencyCounter();
+            }
+
+            function handleSkillCheckboxChange(event) {
+                const checkbox = event.target;
+                const skillKey = checkbox.dataset.skillKey;
+
+                // If it's disabled (meaning it's a background proficiency OR not a class option), revert its state and return
+                const isBackgroundProficient = backgroundProficienciesSet.has(skillKey);
+                const isClassOption = classProficiencyOptions.has(skillKey);
+
+                if (isBackgroundProficient) {
+                    checkbox.checked = true; // Always keep background skills checked
+                    return;
+                }
+                if (!isClassOption) {
+                    checkbox.checked = false; // Cannot select if not a class option
+                    return;
+                }
+
+                // Calculate selected user-chosen skills *after* the current change
+                const allCheckboxes = Array.from(skillProficiencyContainer.querySelectorAll('input[type="checkbox"]'));
+                const selectedUserSkillsCount = allCheckboxes.filter(cb =>
+                    cb.checked && !backgroundProficienciesSet.has(cb.dataset.skillKey)
+                ).length;
+
+                if (checkbox.checked) {
+                    // If this checkbox was just checked, and it pushes us over the limit of *user selectable* skills
+                    if (selectedUserSkillsCount > maxUserSelectableSkills) {
+                        checkbox.checked = false; // Prevent selection
+                    }
+                }
+                // Always update the counter and re-evaluate disabled states for ALL checkboxes
+                updateSkillProficiencyCounter();
+            }
+
+            function updateSkillProficiencyCounter() {
+                // Get ALL skill checkboxes, regardless of their current disabled state
+                const allSkillCheckboxes = Array.from(skillProficiencyContainer.querySelectorAll('input[type="checkbox"]'));
+
+                // Calculate current user-chosen skills (excluding background-granted ones)
+                const selectedUserChosenSkillsCount = allSkillCheckboxes.filter(checkbox =>
+                    checkbox.checked && !backgroundProficienciesSet.has(checkbox.dataset.skillKey)
+                ).length;
+
+                const remaining = maxUserSelectableSkills - selectedUserChosenSkillsCount;
+
+                if (maxUserSelectableSkills === 0) { // If no skills can be chosen by user (e.g., background already filled all 7)
+                    skillProficiencyCounter.textContent = `所有技能已由背景提供。`;
+                } else {
+                    skillProficiencyCounter.textContent = `您還可以選擇 ${remaining} 個技能 (共 ${maxUserSelectableSkills} 個可選)。`;
+                }
+
+                allSkillCheckboxes.forEach(checkbox => {
+                    const skillKey = checkbox.dataset.skillKey;
+                    const isBackgroundProficient = backgroundProficienciesSet.has(skillKey);
+                    const isClassOption = classProficiencyOptions.has(skillKey);
+
+                    if (isBackgroundProficient) {
+                        checkbox.disabled = true; // Always disabled if granted by background
+                        checkbox.checked = true; // Always checked if granted by background
+                    } else if (!isClassOption) {
+                        checkbox.disabled = true; // Disable if not an option for the current class
+                        checkbox.checked = false; // Uncheck if it's not a valid option
+                    } else {
+                        // This is a user-selectable skill (not background, and is a class option)
+                        if (remaining <= 0 && !checkbox.checked) {
+                            checkbox.disabled = true; // Disable if no more slots and not currently checked
+                        } else {
+                            checkbox.disabled = false; // Enable if slots available or if currently checked
+                        }
+                    }
+                });
+            }
+
+            // --- Random Character Generation Logic ---
+            randomCharacterBtn.addEventListener('click', () => {
+                randomButtonClickCount++; // Increment click count for picky adventurer easter egg
+
+                // Reset form first to ensure clean state for random generation
+                charNameInput.value = '';
+                playerNameInput.value = ''; // Clear player name
+                charRaceSelect.value = '';
+                charSubraceSelect.innerHTML = '<option value="">請選擇</option>';
+                subraceContainer.classList.add('hidden');
+                customRaceInputContainer.classList.add('hidden'); // Hide custom input
+                customRaceInput.value = ''; // Clear custom input
+
+                charClassSelect.value = '';
+                customClassInputContainer.classList.add('hidden'); // Hide custom input
+                customClassInput.value = ''; // Clear custom input
+
+                charBackgroundSelect.value = '';
+                customBackgroundInputContainer.classList.add('hidden'); // Hide custom input
+                customBackgroundInput.value = ''; // Clear custom input
+
+                charAlignmentSelect.value = '';
+                charFeatSelect.value = ''; // Clear feat selection for random
+
+                backgroundProficienciesSet.clear();
+                classProficiencyOptions.clear();
+                renderSkillProficiencies(); // Initial render to set up checkboxes
+
+                // For random, always use standard array and populate inputs
+                attributeGenerationMethod = 'standard';
+                document.querySelector('input[name="attributeMethod"][value="standard"]').checked = true;
+                resetAttributeAssignmentUI(); // This will reset availableAttributeValues to standardArrayValues
+                
+                // Populate attribute inputs with shuffled standard array values
+                const shuffledAttributes = shuffleArray([...standardArrayValues]);
+                const attributeKeys = Object.keys(attributeInputs);
+                for (let i = 0; i < attributeKeys.length; i++) {
+                    const attrKey = attributeKeys[i];
+                    attributeInputs[attrKey].value = shuffledAttributes[i];
+                }
+
+                halfElfBonusContainer.classList.add('hidden');
+                halfElfBonus1Select.innerHTML = '<option value="">請選擇</option>';
+                halfElfBonus2Select.innerHTML = '<option value="">請選擇</option>';
+
+                humanVariantBonusContainer.classList.add('hidden'); // Hide human variant bonus
+                humanVariantBonus1Select.innerHTML = '<option value="">請選擇</option>';
+                humanVariantBonus2Select.innerHTML = '<option value="">請選擇</option>';
+
+                simicHybridBonusContainer.classList.add('hidden'); // Hide simic hybrid bonus
+                simicHybridBonusSelect.innerHTML = '<option value="">請選擇</option>';
+
+
+                // 1. Random Race & Subrace (excluding "自訂")
+                const nonCustomRacesForDropdown = racesForDropdown.filter(r => r.id !== "custom_race");
+                const randomRaceForDropdown = getRandomElement(nonCustomRacesForDropdown);
+                charRaceSelect.value = randomRaceForDropdown.id;
+                charRaceSelect.dispatchEvent(new Event('change')); // Trigger change to update subrace/bonus containers
+
+                let selectedBaseRaceData = allRacesData.find(r => r.id === randomRaceForDropdown.id);
+                let selectedSubraceData = null;
+                
+                if (randomRaceForDropdown.subraces && randomRaceForDropdown.subraces.length > 0) {
+                    const randomSubraceForDropdown = getRandomElement(randomRaceForDropdown.subraces);
+                    charSubraceSelect.value = randomSubraceForDropdown.id;
+                    charSubraceSelect.dispatchEvent(new Event('change')); // Trigger change for subrace bonuses
+                    selectedSubraceData = allRacesData.find(r => r.id === randomSubraceForDropdown.id);
+                }
+
+                // Apply racial bonuses to attribute inputs for random generation
+                const currentAttributeValues = {};
+                for (const attrKey in attributeInputs) {
+                    currentAttributeValues[attrKey] = parseInt(attributeInputs[attrKey].value);
+                }
+
+                // Apply fixed bonuses from the base race first
+                if (selectedBaseRaceData && selectedBaseRaceData.bonuses) {
+                    for (const attrKey in selectedBaseRaceData.bonuses) {
+                        currentAttributeValues[attrKey] = (currentAttributeValues[attrKey] || 0) + selectedBaseRaceData.bonuses[attrKey];
+                    }
+                }
+
+                // If a subrace is selected, apply its specific bonuses on top of the base race bonuses
+                if (selectedSubraceData && selectedSubraceData.bonuses) {
+                    for (const attrKey in selectedSubraceData.bonuses) {
+                        currentAttributeValues[attrKey] = (currentAttributeValues[attrKey] || 0) + selectedSubraceData.bonuses[attrKey];
+                    }
+                }
+
+                // Handle flexible bonuses for random generation (based on the effective race for flexible bonus logic)
+                const effectiveFlexibleRaceData = selectedSubraceData || selectedBaseRaceData;
+                if (effectiveFlexibleRaceData && effectiveFlexibleRaceData.flexibleBonuses > 0) {
+                    const attributesToChooseFrom = allAttributesForBonus.map(attr => attr.key);
+                    let availableForFlexible = [];
+                    if (effectiveFlexibleRaceData.flexibleBonusType === "nonCha") {
+                        availableForFlexible = attributesToChooseFrom.filter(key => key !== 'cha');
+                        // Half-Elf CHA+2 is already applied by base race bonus if elf_base is selected.
+                        // If selectedBaseRaceData.id is half_elf_base, its bonuses already include CHA+2.
+                    } else if (effectiveFlexibleRaceData.flexibleBonusType === "any") {
+                        availableForFlexible = attributesToChooseFrom;
+                    } else if (effectiveFlexibleRaceData.flexibleBonusType === "dexOrCha") {
+                        availableForFlexible = ['dex', 'cha'];
+                    }
+
+                    const shuffledAvailable = shuffleArray([...availableForFlexible]);
+                    if (shuffledAvailable.length >= effectiveFlexibleRaceData.flexibleBonuses) {
+                        for (let i = 0; i < effectiveFlexibleRaceData.flexibleBonuses; i++) {
+                            currentAttributeValues[shuffledAvailable[i]] = (currentAttributeValues[shuffledAvailable[i]] || 0) + 1;
+                        }
+                        // Set dropdowns for Half-Elf and Human Variant for display
+                        if (effectiveFlexibleRaceData.flexibleBonusType === "nonCha") {
+                            halfElfBonus1Select.value = shuffledAvailable[0];
+                            halfElfBonus2Select.value = shuffledAvailable[1];
+                            updateHalfElfBonusDropdowns();
+                        } else if (effectiveFlexibleRaceData.flexibleBonusType === "any" && effectiveFlexibleRaceData.skillBonus === 1 && effectiveFlexibleRaceData.featBonus === 1) {
+                            humanVariantBonus1Select.value = shuffledAvailable[0];
+                            humanVariantBonus2Select.value = shuffledAvailable[1];
+                            updateHumanVariantBonusDropdowns();
+                            // For random Human Variant, select a random feat from the list
+                            charFeatSelect.value = getRandomElement(feats.filter(f => f !== "自訂"));
+                        } else if (effectiveFlexibleRaceData.id === "simic_hybrid") { // Simic Hybrid specific
+                            simicHybridBonusSelect.value = shuffledAvailable[0];
+                            updateSimicHybridBonusDropdown();
+                            // Simic Hybrid CON+2 is already applied by base race bonus
+                        }
+                    }
+                }
+
+                // Update attribute inputs with final calculated values
+                for (const attrKey in attributeInputs) {
+                    attributeInputs[attrKey].value = currentAttributeValues[attrKey];
+                }
+
+
+                // 2. Random Class (excluding "自訂")
+                const nonCustomClasses = classes.filter(c => c !== "自訂");
+                charClassSelect.value = getRandomElement(nonCustomClasses);
+                charClassSelect.dispatchEvent(new Event('change')); // Trigger change to update skill options
+
+                // 3. Random Background (excluding "自訂")
+                const nonCustomBackgrounds = backgrounds.filter(b => b !== "自訂");
+                charBackgroundSelect.value = getRandomElement(nonCustomBackgrounds);
+                charBackgroundSelect.dispatchEvent(new Event('change')); // Trigger change to update skill options
+
+                // 4. Random Alignment
+                charAlignmentSelect.value = getRandomElement(alignments);
+
+                // 5. Random Skills (after class and background have updated options)
+                // Need a slight delay to ensure skill options are fully updated by previous change events
+                setTimeout(() => {
+                    const availableSkillsForUserChoice = allSkills.filter(skill =>
+                        !backgroundProficienciesSet.has(skill.key) && classProficiencyOptions.has(skill.key)
+                    );
+                    
+                    // Uncheck all user-selectable skills first
+                    skillProficiencyContainer.querySelectorAll('input[type="checkbox"]:not(:disabled)').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+
+                    // Determine total skills to pick, which is maxUserSelectableSkills
+                    let numSkillsToPick = maxUserSelectableSkills;
+                    
+                    // Ensure we don't pick more than available
+                    numSkillsToPick = Math.min(numSkillsToPick, availableSkillsForUserChoice.length);
+
+                    // Randomly select skills for the user's choice
+                    const shuffledAvailableSkills = shuffleArray([...availableSkillsForUserChoice]);
+                    const skillsToChoose = [];
+                    for (let i = 0; i < numSkillsToPick; i++) {
+                        skillsToChoose.push(shuffledAvailableSkills[i].key);
+                    }
+
+                    // Check the randomly chosen skills
+                    skillsToChoose.forEach(skillKey => {
+                        const checkbox = document.getElementById(`skill-${skillKey}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                    updateSkillProficiencyCounter(); // Re-evaluate disabled states after random selection
+
+                }, 100); // Small delay to allow UI updates to propagate
+
+                // Set a random name (optional, but good for full random character)
+                const randomNames = ["奧利佛", "莉莉絲", "葛雷戈", "艾拉", "芬恩", "瑟拉娜", "凱爾", "伊芙琳"];
+                charNameInput.value = getRandomElement(randomNames);
+                playerNameInput.value = "隨機玩家"; // Assign a default player name for random characters
+            });
+
+            /**
+             * Displays a pop-out message near a target element.
+             * @param {HTMLElement} targetElement The element to position the pop-out relative to.
+             * @param {string} message The message to display.
+             * @param {string} idPrefix A unique prefix for the pop-out message ID.
+             * @param {number} duration How long the message should be visible in milliseconds.
+             */
+            function showPopOutMessage(targetElement, message, idPrefix, duration = 2000) {
+                const existingPopOut = document.getElementById(`${idPrefix}PopOutMessage`);
+                if (existingPopOut) {
+                    existingPopOut.remove();
+                }
+
+                const popOutDiv = document.createElement('div');
+                popOutDiv.id = `${idPrefix}PopOutMessage`;
+                popOutDiv.className = 'pop-out-message';
+                popOutDiv.textContent = message;
+
+                const targetRect = targetElement.getBoundingClientRect();
+                const containerRect = document.querySelector('.book-container').getBoundingClientRect();
+
+                // Position relative to the target element, centered
+                popOutDiv.style.left = `${targetRect.left - containerRect.left + targetRect.width / 2}px`;
+                popOutDiv.style.top = `${targetRect.top - containerRect.top + targetRect.height + 10}px`;
+                popOutDiv.style.transform = 'translateX(-50%) translateY(20px) scale(0.8)';
+
+                document.querySelector('.book-container').appendChild(popOutDiv);
+
+                setTimeout(() => {
+                    popOutDiv.classList.add('active');
+                }, 10);
+
+                setTimeout(() => {
+                    popOutDiv.classList.remove('active');
+                    popOutDiv.addEventListener('transitionend', () => {
+                        popOutDiv.remove();
+                    }, { once: true });
+                }, duration);
+            }
+
+
+            // --- Character Creation Logic (shared by manual and random) ---
+            function createAndDisplayCharacter() {
+                const name = charNameInput.value.trim();
+                const playerName = playerNameInput.value.trim();
+                let raceId = charRaceSelect.value; // Get ID from select
+                const subraceId = subraceContainer.classList.contains('hidden') ? null : charSubraceSelect.value;
+                let charClass = charClassSelect.value;
+                let background = charBackgroundSelect.value;
+                const alignment = charAlignmentSelect.value;
+                const charFeat = charFeatSelect.value; // Get feat value from select
+
+                // Handle custom inputs
+                if (raceId === "custom_race") {
+                    raceId = customRaceInput.value.trim();
+                    if (!raceId) {
+                        newCharacterDisplay.innerHTML = '<p class="text-red-300">請輸入自訂種族名稱。</p>';
+                        return;
+                    }
+                }
+                if (charClass === "自訂") {
+                    charClass = customClassInput.value.trim();
+                    if (!charClass) {
+                        newCharacterDisplay.innerHTML = '<p class="text-red-300">請輸入自訂職業名稱。</p>';
+                        return;
+                    }
+                }
+                if (background === "自訂") {
+                    background = customBackgroundInput.value.trim();
+                    if (!background) {
+                        newCharacterDisplay.innerHTML = '<p class="text-red-300">請輸入自訂背景名稱。</p>';
+                        return;
+                    }
+                }
+
+                // Validate basic fields (after custom inputs are resolved)
+                if (!name || !raceId || !charClass || !background || !alignment) {
+                    newCharacterDisplay.innerHTML = '<p class="text-red-300">請填寫所有角色基本資訊。</p>';
+                    return;
+                }
+                if (subraceContainer.classList.contains('hidden') === false && !subraceId) {
+                    newCharacterDisplay.innerHTML = '<p class="text-red-300">請選擇亞種。</p>';
+                    return;
+                }
+
+                // Validate and collect attribute values from inputs
+                const enteredAttributes = {};
+                let allAttributesValid = true;
+                for (const attrKey in attributeInputs) {
+                    const value = parseInt(attributeInputs[attrKey].value);
+                    if (isNaN(value) || value < 3 || value > 18) { // D&D 5e attributes are usually 3-18
+                        allAttributesValid = false;
+                        break;
+                    }
+                    enteredAttributes[attrKey] = value;
+                }
+
+                if (!allAttributesValid) {
+                    newCharacterDisplay.innerHTML = '<p class="text-red-300">請為所有屬性輸入有效的數值 (3-18)。</p>';
+                    return;
+                }
+
+                // Validate attribute values against the chosen method
+                const enteredValuesArray = Object.values(enteredAttributes).sort((a,b) => b - a); // Sort descending
+                let targetValuesArray = [];
+                if (attributeGenerationMethod === 'standard') {
+                    targetValuesArray = [...standardArrayValues].sort((a,b) => b - a);
+                    if (JSON.stringify(enteredValuesArray) !== JSON.stringify(targetValuesArray)) {
+                        newCharacterDisplay.innerHTML = `<p class="text-red-300">您輸入的屬性值不符合標準配點 [${standardArrayValues.join(', ')}]。請確保每個數字都使用且僅使用一次。</p>`;
+                        return;
+                    }
+                } else { // 'roll'
+                    if (rolledAttributeValues.length === 0) {
+                        newCharacterDisplay.innerHTML = '<p class="text-red-300">請先投擲屬性骰。</p>';
+                        return;
+                    }
+                    targetValuesArray = [...rolledAttributeValues].sort((a,b) => b - a);
+                    if (JSON.stringify(enteredValuesArray) !== JSON.stringify(targetValuesArray)) {
+                        newCharacterDisplay.innerHTML = `<p class="text-red-300">您輸入的屬性值不符合已投擲的數值 [${rolledAttributeValues.join(', ')}]。請確保每個數字都使用且僅使用一次。</p>`;
+                        return;
+                    }
+                }
+
+                const finalAttributes = { ...enteredAttributes }; // Start with entered values
+
+                // Determine the effective race data (subrace if selected, else base race)
+                const selectedBaseRaceData = allRacesData.find(r => r.id === raceId);
+                const selectedSubraceData = subraceId ? allRacesData.find(r => r.id === subraceId) : null;
+
+                // Apply fixed bonuses from the base race first
+                if (selectedBaseRaceData && selectedBaseRaceData.bonuses) {
+                    for (const attrKey in selectedBaseRaceData.bonuses) {
+                        finalAttributes[attrKey] = (finalAttributes[attrKey] || 0) + selectedBaseRaceData.bonuses[attrKey];
+                    }
+                }
+
+                // If a subrace is selected, apply its specific bonuses on top of the base race bonuses
+                if (selectedSubraceData && selectedSubraceData.bonuses) {
+                    for (const attrKey in selectedSubraceData.bonuses) {
+                        finalAttributes[attrKey] = (finalAttributes[attrKey] || 0) + selectedSubraceData.bonuses[attrKey];
+                    }
+                }
+
+                let finalFeat = charFeat; // Use the value from the select element directly
+
+                // Apply flexible bonuses based on the effective race/subrace
+                const effectiveFlexibleRaceData = selectedSubraceData || selectedBaseRaceData;
+                if (effectiveFlexibleRaceData && effectiveFlexibleRaceData.flexibleBonuses > 0) {
+                    if (effectiveFlexibleRaceData.flexibleBonusType === "nonCha") { // Half-Elf
+                        if (!halfElfBonus1Select.value || !halfElfBonus2Select.value || halfElfBonus1Select.value === halfElfBonus2Select.value) {
+                            newCharacterDisplay.innerHTML = '<p class="text-red-300">半精靈需要為兩個不同的非魅力屬性各選擇 +1。</p>';
+                            return;
+                        }
+                        // CHA+2 is already part of Half-Elf's fixed bonuses in allRacesData.bonuses
+                        finalAttributes[halfElfBonus1Select.value] = (finalAttributes[halfElfBonus1Select.value] || 0) + 1;
+                        finalAttributes[halfElfBonus2Select.value] = (finalAttributes[halfElfBonus2Select.value] || 0) + 1;
+                    } else if (effectiveFlexibleRaceData.flexibleBonusType === "any" && effectiveFlexibleRaceData.skillBonus === 1 && effectiveFlexibleRaceData.featBonus === 1) { // Human (Variant)
+                        if (!humanVariantBonus1Select.value || !humanVariantBonus2Select.value || humanVariantBonus1Select.value === humanVariantBonus2Select.value) {
+                            newCharacterDisplay.innerHTML = '<p class="text-red-300">人類(變體)需要為兩個不同的屬性各選擇 +1。</p>';
+                            return;
+                        }
+                        finalAttributes[humanVariantBonus1Select.value] = (finalAttributes[humanVariantBonus1Select.value] || 0) + 1;
+                        finalAttributes[humanVariantBonus2Select.value] = (finalAttributes[humanVariantBonus2Select.value] || 0) + 1;
+                        // For Human (Variant), the feat is chosen by the user in the select field.
+                        // No need to set a placeholder here, as it's already in finalFeat.
+                    } else if (effectiveFlexibleRaceData.id === "simic_hybrid") { // Simic Hybrid
+                        if (!simicHybridBonusSelect.value) {
+                            newCharacterDisplay.innerHTML = '<p class="text-red-300">析米克混合體需要為一個額外屬性選擇 +1。</p>';
+                            return;
+                        }
+                        // CON+2 is already part of Simic Hybrid's fixed bonuses in allRacesData.bonuses
+                        finalAttributes[simicHybridBonusSelect.value] = (finalAttributes[simicHybridBonusSelect.value] || 0) + 1;
+                    } else if (effectiveFlexibleRaceData.flexibleBonusType === "dexOrCha") { // Tiefling (Variant)
+                        // For now, note this special flexible bonus
+                        if (!finalFeat) { // Only set if user hasn't entered anything
+                            finalFeat = "提夫林(變體)額外加點: 敏捷 或 魅力+2 (未在程式中選擇)";
+                        }
+                    }
+                }
+
+                // Dragonborn racial breath weapon details
+                let dragonbornDetails = null;
+                // Find the base Dragonborn race data if selected
+                if (selectedBaseRaceData && selectedBaseRaceData.id === "dragonborn") {
+                    // If a specific Dragonborn subrace (color) is selected, use its details
+                    if (selectedSubraceData && selectedBaseRaceData.subraces) { 
+                        const actualSelectedDragonSubrace = selectedBaseRaceData.subraces.find(sr => sr.id === subraceId);
+
+                        if (actualSelectedDragonSubrace) {
+                            dragonbornDetails = {
+                                damageType: actualSelectedDragonSubrace.damageType,
+                                breathWeapon: actualSelectedDragonSubrace.breathWeapon
+                            };
+                        }
+                    }
+                }
+
+
+                // Get selected skills for validation (all checked skills, including background)
+                const allCheckedSkillsForValidation = Array.from(skillProficiencyContainer.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.dataset.skillKey);
+                
+                // Validate skill count for user-chosen skills (excluding background-granted ones)
+                const selectedUserChosenSkillsCount = allCheckedSkillsForValidation.filter(skillKey => !backgroundProficienciesSet.has(skillKey)).length;
+
+                if (selectedUserChosenSkillsCount !== maxUserSelectableSkills) {
+                     newCharacterDisplay.innerHTML = `<p class="text-red-300">您需要選擇總計 ${maxUserSelectableSkills} 個技能 (不含背景提供的)。您目前選擇了 ${selectedUserChosenSkillsCount} 個。</p>`;
+                     return;
+                }
+
+                // IMPORTANT: Only background skills are considered "proficient" in the final character object
+                const finalProficientSkills = Array.from(backgroundProficienciesSet);
+
+                const newChar = {
+                    name, playerName, 
+                    race: selectedBaseRaceData.name, // Display the base race name
+                    subrace: subraceId ? selectedSubraceData.name : null, // Display subrace name if exists
+                    charClass, background, alignment,
+                    level: 1, // Default to level 1
+                    currentXP: 0, // Default to 0 XP
+                    str: finalAttributes.str,
+                    dex: finalAttributes.dex,
+                    con: finalAttributes.con,
+                    int: finalAttributes.int,
+                    wis: finalAttributes.wis,
+                    cha: finalAttributes.cha,
+                    proficiencyBonus: 2, // Default proficiency bonus for level 1
+                    proficientSkills: finalProficientSkills, // Store ONLY background-granted skills as proficient
+                    gold: 0,
+                    inventory: [],
+                    dragonbornDetails: dragonbornDetails,
+                    feat: finalFeat, // Use finalFeat
+                    size: effectiveFlexibleRaceData.size, // Use effectiveFlexibleRaceData for size
+                    source: effectiveFlexibleRaceData.source // Use effectiveFlexibleRaceData for source
+                };
+
+                // Display the created character
+                let skillsDisplay = '';
+                if (newChar.proficientSkills.length > 0) {
+                    skillsDisplay = '<p class="mt-2"><span class="font-bold text-dark-text">熟練技能:</span></p><ul class="list-disc list-inside ml-4 text-dark-text-secondary">';
+                    newChar.proficientSkills.forEach(skillKey => {
+                        const skill = allSkills.find(s => s.key === skillKey);
+                        if (skill) {
+                            skillsDisplay += `<li>${skill.name} (${skill.attribute.toUpperCase()})</li>`;
+                        }
+                    });
+                    skillsDisplay += '</ul>';
+                }
+
+                let dragonbornDetailsDisplay = '';
+                if (newChar.dragonbornDetails) {
+                    dragonbornDetailsDisplay = `
+                        <p class="mt-2"><span class="font-bold text-dark-text">龍種傷害類型:</span> ${newChar.dragonbornDetails.damageType}</p>
+                        <p><span class="font-bold text-dark-text">龍種噴吐武器:</span> ${newChar.dragonbornDetails.breathWeapon}</p>
+                    `;
+                }
+
+                // --- Easter Egg Logic ---
+                let finalEasterEggMessages = []; // Use an array to store multiple messages
+
+                // 1. General Random Easter Egg (1 in 8 chance)
+                if (Math.random() < 0.125) {
+                    const randomIndex = Math.floor(Math.random() * generalEasterEggMessages.length);
+                    finalEasterEggMessages.push(generalEasterEggMessages[randomIndex]);
+                }
+
+                // 2. Player Name Easter Egg
+                const lowerCasePlayerName = playerName.toLowerCase(); // Declare here once
+                for (const trigger in playerNameEasterEggs) {
+                    if (lowerCasePlayerName.includes(trigger.toLowerCase())) { // Convert trigger to lowercase for consistent comparison
+                        finalEasterEggMessages.push(playerNameEasterEggs[trigger]);
+                    }
+                }
+
+                // 3. Race-Class Combination Easter Egg
+                const raceClassComboKey = `${newChar.race}-${newChar.charClass}`; // Use resolved race/class names
+                if (raceClassEasterEggs[raceClassComboKey]) {
+                    finalEasterEggMessages.push(raceClassEasterEggs[raceClassComboKey]);
+                }
+
+                // 4. Specific Skill Selection Combination Easter Egg (now checks against ALL checked skills, not just proficient ones)
+                // The logic here remains the same, as these are "choices" made, even if not "proficient"
+                const allCheckedSkills = Array.from(skillProficiencyContainer.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.dataset.skillKey);
+
+                // 新增的技能組合彩蛋
+                if (allCheckedSkills.includes('athletics') && allCheckedSkills.includes('intimidation')) {
+                    finalEasterEggMessages.push('你的角色看起來隨時準備好一場硬仗，並且會讓敵人聞風喪膽！');
+                }
+                if (allCheckedSkills.includes('arcana') && allCheckedSkills.includes('history')) {
+                    finalEasterEggMessages.push('一位對古老魔法和歷史充滿好奇的學者，知識就是力量！');
+                }
+                if (allCheckedSkills.includes('medicine') && allCheckedSkills.includes('insight')) {
+                    finalEasterEggMessages.push('你不僅能治癒傷口，還能看穿人心，是隊伍中不可或缺的支援者！');
+                }
+                if (allCheckedSkills.includes('stealth') && allCheckedSkills.includes('deception')) {
+                    finalEasterEggMessages.push('一個擅長隱匿和欺瞞的傢伙，是潛入和間諜任務的完美人選！');
+                }
+                if (allCheckedSkills.includes('animalHandling') && allCheckedSkills.includes('nature')) {
+                    finalEasterEggMessages.push('與動物為友，與自然共鳴，你就像森林的低語者！');
+                }
+                if (allCheckedSkills.includes('performance') && allCheckedSkills.includes('persuasion')) {
+                    finalEasterEggMessages.push('舞台是你的，人心也是你的，天生的表演者和說服家！');
+                }
+                // 新增更多技能組合彩蛋
+                if (allCheckedSkills.includes('investigation') && allCheckedSkills.includes('perception')) {
+                    finalEasterEggMessages.push('敏銳的觀察力與縝密的調查，沒有什麼能逃過你的雙眼！');
+                }
+                if (allCheckedSkills.includes('survival') && allCheckedSkills.includes('athletics')) {
+                    finalEasterEggMessages.push('在野外生存的專家，無論多麼惡劣的環境都難不倒你！');
+                }
+                if (allCheckedSkills.includes('religion') && allCheckedSkills.includes('medicine')) {
+                    finalEasterEggMessages.push('神聖的知識與治療的藝術，你是信仰與健康的守護者！');
+                }
+                if (allCheckedSkills.includes('acrobatics') && allCheckedSkills.includes('performance')) {
+                    finalEasterEggMessages.push('靈活的身體加上精湛的表演，你就是舞台上的焦點！');
+                }
+                if (allCheckedSkills.includes('sleightOfHand') && allCheckedSkills.includes('intimidation')) {
+                    finalEasterEggMessages.push('既能巧妙偷竊，又能威嚇他人，真是個危險又迷人的角色！');
+                }
+
+
+                // 5. Time/Date Easter Egg
+                const now = new Date();
+                // Correctly get month, day, and hour from the Date object
+                const currentMonth = now.getMonth(); // 0-indexed
+                const currentDay = now.getDate();
+                const currentHour = now.getHours();
+
+                if (currentMonth === 9 && currentDay === 31) { // October 31st (Halloween)
+                    finalEasterEggMessages.push('祝您萬聖節快樂！小心那些不給糖就搗蛋的怪物！');
+                } else if (currentHour >= 6 && currentHour < 11) { // 6 AM to 10:59 AM
+                    finalEasterEggMessages.push('大早上開始冒險之路？非常有趕緊！');
+                } else if (currentHour >= 11 && currentHour < 13) { // 11 AM to 12:59 PM
+                    finalEasterEggMessages.push('帶上午餐出發吧！冒險者');
+                } else if (currentHour >= 13 && currentHour < 17) { // 1 PM to 4:59 PM
+                    finalEasterEggMessages.push('下午，非常適合出發冒險的時間！');
+                } else if (currentHour >= 17 && currentHour < 21) { // 5 PM to 8:59 PM
+                    finalEasterEggMessages.push('晚上了，出發冒險時記得帶上一盞照明的燈');
+                } else if (currentHour >= 21 || (currentHour >= 0 && currentHour < 2)) { // 9 PM to 1:59 AM (next day)
+                    finalEasterEggMessages.push('夜深了，只有最勇敢的冒險者才會在這個時候創造角色…或者最失眠的。');
+                }
+                // 新增的時間/日期彩蛋
+                // New Year's Day (January 1st)
+                if (currentMonth === 0 && currentDay === 1) {
+                    finalEasterEggMessages.push('新年快樂！願您的冒險在嶄新的一年裡充滿希望！');
+                }
+                // Dragon Boat Festival (Example: June 10th, 2024 - this changes yearly, so a fixed date is just an example)
+                // For a more accurate date, one would need a lunar calendar library.
+                // For simplicity, let's pick a common approximate date for the example.
+                if (currentMonth === 5 && currentDay === 10) { // Example: June 10th (approximate for Dragon Boat Festival)
+                    finalEasterEggMessages.push('端午節快樂！別忘了吃粽子，小心划龍舟別翻船！');
+                }
+                // Mid-Autumn Festival (Example: September 17th, 2024 - this changes yearly)
+                if (currentMonth === 8 && currentDay === 17) { // Example: September 17th (approximate for Mid-Autumn Festival)
+                    finalEasterEggMessages.push('中秋節快樂！願您和您的夥伴們月圓人團圓！');
+                }
+                // Christmas Day (December 25th)
+                if (currentMonth === 11 && currentDay === 25) {
+                    finalEasterEggMessages.push('聖誕快樂！願您的背包裡充滿禮物和好運！');
+                }
+                // April Fool's Day (April 1st)
+                if (currentMonth === 3 && currentDay === 1) {
+                    finalEasterEggMessages.push('愚人節快樂！希望您的冒險不會遇到太多惡作劇！');
+                }
+
+
+                // 6. Picky Adventurer Easter Egg (for random generation clicks)
+                if (randomButtonClickCount > 10) {
+                    finalEasterEggMessages.push('看來這位冒險家非常精挑細選！');
+                }
+
+                // 7. All 8s or All 18s Easter Egg
+                const allAttributes = Object.values(enteredAttributes);
+                const allEight = allAttributes.every(val => val === 8);
+                const allEighteen = allAttributes.every(val => val === 18);
+
+                if (allEight) {
+                    finalEasterEggMessages.push('地城主的微笑：嗯... 你的角色完美地展現了『平均值以下』的精髓。這可不是一般人能辦到的！地城主已經為你準備好了最『合適』的挑戰，你會發現，即使是最簡單的任務，對你來說也充滿了史詩般的困難。祝你好運，你可能比任何人都需要它！');
+                } else if (allEighteen) {
+                    finalEasterEggMessages.push('地城主的噩夢：看來這次，地城主可要頭疼了。你擲出了如此逆天的屬性，每一個數值都閃耀著不合理的光芒。這意味著你的冒險將一路暢通，那些為凡人設計的陷阱和怪物，在你面前將不堪一擊。地城主可能正在角落裡默默哭泣，思考如何才能給你製造一點點挑戰。幹得漂亮，你徹底碾壓了規則！');
+                }
+
+                // 8. Cat Easter Egg
+                const lowerCaseName = name.toLowerCase();
+                // lowerCasePlayerName is already declared above
+                const lowerCaseRace = newChar.race.toLowerCase(); // Use newChar.race for the effective race name
+
+                if (lowerCaseName.includes('貓') && lowerCasePlayerName.includes('貓') && lowerCaseRace.includes('貓')) {
+                    finalEasterEggMessages.push('真正的貓咪冒險者來了！');
+                    showPopOutMessage(newCharacterDisplay, '喵咪喵咪咪喵喵😺', 'cat');
+                }
+
+
+                // Join all easter egg messages with " - " and add the prefix/suffix
+                let easterEggDisplay = '';
+                if (finalEasterEggMessages.length > 0) {
+                    // Changed to format as "小精靈評語:\n- Message1\n- Message2"
+                    easterEggDisplay = `<p class="mt-2 text-center text-dark-text-secondary italic">小精靈評語:<br>- ${finalEasterEggMessages.join('<br>- ')}</p>`;
+                }
+
+
+                newCharacterDisplay.innerHTML = `
+                    <p><span class="font-bold text-dark-text">名稱:</span> <span class="text-dark-text">${newChar.name}</span></p>
+                    <p><span class="font-bold text-dark-text">玩家名稱:</span> <span class="text-dark-text">${newChar.playerName || '未設定'}</span></p>
+                    <p><span class="font-bold text-dark-text">種族:</span> ${newChar.race}${newChar.subrace ? ` (${newChar.subrace})` : ''}</p>
+                    <p><span class="font-bold text-dark-text">職業:</span> ${newChar.charClass}</p>
+                    <p><span class="font-bold text-dark-text">背景:</span> ${newChar.background}</p>
+                    <p><span class="font-bold text-dark-text">陣營:</span> ${newChar.alignment}</p>
+                    ${newChar.feat && newChar.feat !== "請選擇" ? `<p><span class="font-bold text-dark-text">專長:</span> ${newChar.feat}</p>` : ''}
+                    <p><span class="font-bold text-dark-text">等級:</span> ${newChar.level} (XP: ${newChar.currentXP})</p>
+                    <p><span class="font-bold text-dark-text">熟練加值:</span> +${newChar.proficiencyBonus}</p>
+                    <p class="mt-2"><span class="font-bold text-dark-text">屬性:</span></p>
+                    <ul class="list-disc list-inside ml-4 text-dark-text-secondary">
+                        <li>力量 (STR): ${newChar.str} (${getAttributeModifier(newChar.str)})</li>
+                        <li>敏捷 (DEX): ${newChar.dex} (${getAttributeModifier(newChar.dex)})</li>
+                        <li>體質 (CON): ${newChar.con} (${getAttributeModifier(newChar.con)})</li>
+                        <li>智力 (INT): ${newChar.int} (${getAttributeModifier(newChar.int)})</li>
+                        <li>感知 (WIS): ${newChar.wis} (${getAttributeModifier(newChar.wis)})</li>
+                        <li>魅力 (CHA): ${newChar.cha} (${getAttributeModifier(newChar.cha)})</li>
+                    </ul>
+                    ${skillsDisplay}
+                    ${dragonbornDetailsDisplay}
+                    <p class="mt-2 text-green-300 font-bold">角色創造成功！</p>
+                    ${easterEggDisplay}
+                `;
+
+                // Reset form and counters after successful character creation
+                charNameInput.value = '';
+                playerNameInput.value = ''; // Clear player name
+                charRaceSelect.value = '';
+                charSubraceSelect.innerHTML = '<option value="">請選擇</option>';
+                subraceContainer.classList.add('hidden');
+                customRaceInputContainer.classList.add('hidden');
+                customRaceInput.value = '';
+
+                charClassSelect.value = '';
+                customClassInputContainer.classList.add('hidden');
+                customClassInput.value = '';
+
+                charBackgroundSelect.value = '';
+                customBackgroundInputContainer.classList.add('hidden');
+                customBackgroundInput.value = '';
+                
+                charAlignmentSelect.value = '';
+                charFeatSelect.value = ''; // Clear feat selection
+                
+                backgroundProficienciesSet.clear();
+                classProficiencyOptions.clear();
+                updateSkillProficienciesBasedOnClassAndBackground(); // Re-calculate maxUserSelectableSkills and render
+                
+                // Reset attribute generation method to standard and clear inputs
+                attributeGenerationMethod = 'standard';
+                document.querySelector('input[name="attributeMethod"][value="standard"]').checked = true;
+                resetAttributeAssignmentUI(); // This will clear inputs and reset method info
+
+                halfElfBonusContainer.classList.add('hidden');
+                halfElfBonus1Select.innerHTML = '<option value="">請選擇</option>';
+                halfElfBonus2Select.innerHTML = '<option value="">請選擇</option>';
+
+                humanVariantBonusContainer.classList.add('hidden');
+                humanVariantBonus1Select.innerHTML = '<option value="">請選擇</option>';
+                humanVariantBonus2Select.innerHTML = '<option value="">請選擇</option>';
+
+                simicHybridBonusContainer.classList.add('hidden');
+                simicHybridBonusSelect.innerHTML = '<option value="">請選擇</option>';
+
+                randomButtonClickCount = 0; // Reset picky adventurer counter
+            }
+
+            // --- Event Listeners ---
+            createCharacterBtn.addEventListener('click', createAndDisplayCharacter);
+            randomCharacterBtn.addEventListener('click', () => {
+                randomButtonClickCount++; // Increment for random button clicks
+                createAndDisplayCharacter(); // Call the shared function
+            });
+
+
+            // --- Initial Setup ---
+            populateDropdown(charRaceSelect, racesForDropdown); // Use the new dropdown data
+            populateDropdown(charClassSelect, classes);
+            populateDropdown(charAlignmentSelect, alignments);
+            populateDropdown(charBackgroundSelect, backgrounds);
+            populateDropdown(charFeatSelect, feats); // Populate the new feat dropdown
+            resetAttributeAssignmentUI(); // Initialize attribute method and inputs
+            updateSkillProficienciesBasedOnClassAndBackground(); // Initialize skill checkboxes based on default empty selections
+            displayRaceCharacteristics(); // Initial call to display default message
+            displayBackgroundCharacteristics(); // Initial call to display default background message
+
+            // Title Click Easter Egg
+            mainTitle.addEventListener('click', () => {
+                const currentTime = Date.now();
+                if (currentTime - titleLastClickTime < displayClickInterval) { // Reusing displayClickInterval for title
+                    titleClickCount++;
+                } else {
+                    titleClickCount = 1; // Reset if interval is too long
+                }
+                titleLastClickTime = currentTime;
+
+                clearTimeout(titleClickTimeout);
+                titleClickTimeout = setTimeout(() => {
+                    titleClickCount = 0; // Reset after interval if no more clicks
+                }, displayClickInterval); // Reusing displayClickInterval for title
+
+                if (titleClickCount > titleClickThreshold) { // Changed to > 5
+                    showPopOutMessage(mainTitle, "哎呀別顧著點我了，快創作你的角色吧！", 'title');
+                    titleClickCount = 0; // Reset after triggering
+                }
+            });
+
+            // Continuous Click Easter Egg on newCharacterDisplay
+            newCharacterDisplay.addEventListener('click', () => {
+                const currentTime = Date.now();
+                if (currentTime - displayLastClickTime < displayClickInterval) {
+                    displayClickCount++;
+                } else {
+                    displayClickCount = 1; // Reset if interval is too long
+                }
+                displayLastClickTime = currentTime;
+
+                clearTimeout(displayClickTimeout);
+                displayClickTimeout = setTimeout(() => {
+                    displayClickCount = 0; // Reset after interval if no more clicks
+                }, displayClickInterval);
+
+                if (displayClickCount >= displayClickThreshold) {
+                    showPopOutMessage(newCharacterDisplay, "你是不是太無聊了？這裡沒有寶藏哦！", 'display');
+                    displayClickCount = 0; // Reset after triggering
+                }
+            });
+        });
+    </script>
+</body>
+</html>
